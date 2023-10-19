@@ -1,0 +1,48 @@
+## SPDX-License-Identifier: GPL-2.0-or-later
+
+config BOARD_FRAMEWORK_ADLRPL_COMMON
+	def_bool n
+	select BOARD_ROMSIZE_KB_32768
+	select DRIVERS_I2C_HID
+	select DRIVERS_INTEL_USB4_RETIMER
+	select DRIVERS_INTEL_WIFI
+	select HAVE_ACPI_RESUME
+	select HAVE_ACPI_TABLES
+#	select HAVE_CMOS_DEFAULT
+#	select HAVE_OPTION_TABLE
+	select INTEL_GMA_HAVE_VBT
+	select INTEL_LPSS_UART_FOR_CONSOLE
+	select MEMORY_MAPPED_TPM
+	select MAINBOARD_HAS_TPM2
+	select NO_UART_ON_SUPERIO
+	select SOC_INTEL_COMMON_BLOCK_HDA_VERB
+	select SOC_INTEL_ENABLE_USB4_PCIE_RESOURCES
+	select SPD_READ_BY_WORD
+	select SPI_TPM
+	select SYSTEM_TYPE_LAPTOP
+
+config BOARD_FRAMEWORK_HX30
+	select BOARD_FRAMEWORK_ADLRPL_COMMON
+	select SOC_INTEL_ALDERLAKE_PCH_P
+
+if BOARD_FRAMEWORK_ADLRPL_COMMON
+
+config MAINBOARD_DIR
+	default "framework/adlrpl"
+
+config CONSOLE_POST
+	default y
+
+config DIMM_MAX
+	default 2
+
+config POST_DEVICE
+	default n
+
+config UART_FOR_CONSOLE
+	default 0
+
+config DRIVER_TPM_SPI_CHIP
+	default 2
+
+endif

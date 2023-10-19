@@ -1,0 +1,4 @@
+## SPDX-License-Identifier: GPL-2.0-or-later
+
+config BOARD_FRAMEWORK_HX30
+	bool "hx30 (13\" laptop Intel 12th gen)"
