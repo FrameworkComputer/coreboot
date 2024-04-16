@@ -5,6 +5,7 @@ config BOARD_FRAMEWORK_AZALEA
 	select EC_GOOGLE_CHROMEEC
 	select EC_GOOGLE_CHROMEEC_ESPI
 	select SOC_AMD_COMMON_BLOCK_USE_ESPI
+	select SPI_FLASH_EXIT_4_BYTE_ADDR_MODE
 	select SOC_AMD_PHOENIX_FSP
 if BOARD_FRAMEWORK_AZALEA
 
@@ -16,4 +17,26 @@ config MAINBOARD_PART_NUMBER
 
 config FMDFILE
 	default "src/mainboard/\$(CONFIG_MAINBOARD_DIR)/coreboot.fmd"
+
+if !EM100	# EM100 defaults in soc/amd/common/blocks/spi/Kconfig
+config EFS_SPI_READ_MODE
+	default 3	# Quad IO (1-1-4)
+
+config EFS_SPI_SPEED
+	default 0	# 66MHz
+
+config EFS_SPI_MICRON_FLAG
+	default 0
+
+config NORMAL_READ_SPI_SPEED
+	default 1	# 33MHz
+
+config ALT_SPI_SPEED
+	default 1	# 33MHz
+
+config TPM_SPI_SPEED
+	default 1	# 33MHz
+
+endif # !EM100
+
 endif
