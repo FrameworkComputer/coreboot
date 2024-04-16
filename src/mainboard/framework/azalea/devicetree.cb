@@ -80,5 +80,6 @@ chip soc/amd/phoenix
 	device ref i2c_1 on end	# Touch Screen
 	device ref i2c_2 on end	# DDR5
 	device ref i2c_3 on end	# Touch Pad
+	device ref uart_0 on end # UART0
 
 end	# chip soc/amd/phoenix
