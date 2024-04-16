@@ -6,6 +6,7 @@
 #include <commonlib/helpers.h>
 #include <device/device.h>
 
+#include "mb_ec.h"
 #include "mb_gpio.h"
 
 /* The IRQ mapping in fch_irq_map ends up getting written to the indirect address space that is
@@ -57,6 +58,7 @@ const struct fch_irq_routing *mb_get_fch_irq_mapping(size_t *length)
 static void mainboard_init(void *chip_info)
 {
 	mainboard_program_gpios();
+	mainboard_ec_init();
 }
 
 static void mainboard_enable(struct device *dev)
