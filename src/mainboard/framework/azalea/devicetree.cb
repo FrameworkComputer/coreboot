@@ -62,6 +62,7 @@ chip soc/amd/phoenix
 
 
 	device domain 0 on
+		device ref iommu on end
 		device ref gpp_bridge_1_1 on end # MXM
 		device ref gpp_bridge_1_2 on end #
 		device ref gpp_bridge_1_3 on end #
@@ -69,6 +70,77 @@ chip soc/amd/phoenix
 		device ref gpp_bridge_2_2 on end #
 		device ref gpp_bridge_2_3 on end #
 		device ref gpp_bridge_2_4 on end #
+		device ref gpp_bridge_a on  # Internal GPP Bridge 0 to Bus A
+			device ref gfx on end # Internal GPU (GFX)
+			device ref gfx_hda on end # Display HD Audio Controller (GFXAZ)
+			device ref crypto on end # Crypto Coprocessor
+			device ref xhci_0 on # USB 3.1 (USB0)
+				chip drivers/usb/acpi
+					device ref xhci_0_root_hub on
+						chip drivers/usb/acpi
+							device ref usb3_port2 on end
+						end
+						chip drivers/usb/acpi
+							device ref usb3_port3 on end
+						end
+						chip drivers/usb/acpi
+							device ref usb2_port2 on end
+						end
+						chip drivers/usb/acpi
+							device ref usb2_port3 on end
+						end
+						chip drivers/usb/acpi
+							device ref usb2_port4 on end
+						end
+						chip drivers/usb/acpi
+							device ref usb2_port5 on end
+						end
+						chip drivers/usb/acpi
+							device ref usb2_port6 on end
+						end
+					end
+				end
+			end
+			device ref xhci_1 on # USB 3.1 (USB1)
+				chip drivers/usb/acpi
+					device ref xhci_1_root_hub on
+						chip drivers/usb/acpi
+							device ref usb3_port7 on end
+						end
+						chip drivers/usb/acpi
+							device ref usb2_port7 on end
+						end
+					end
+				end
+			end
+			device ref acp on end # Audio Processor (ACP)
+		end
+		device ref gpp_bridge_c on  # Internal GPP Bridge 2 to Bus C
+			device ref usb4_xhci_0 on
+				chip drivers/usb/acpi
+					device ref usb4_xhci_0_root_hub on
+						chip drivers/usb/acpi
+							device ref usb3_port0 on end
+						end
+						chip drivers/usb/acpi
+							device ref usb2_port0 on end
+						end
+					end
+				end
+			end
+			device ref usb4_xhci_1 on
+				chip drivers/usb/acpi
+					device ref usb4_xhci_1_root_hub on
+						chip drivers/usb/acpi
+							device ref usb3_port1 on end
+						end
+						chip drivers/usb/acpi
+							device ref usb2_port1 on end
+						end
+					end
+				end
+			end
+		end
 		device ref lpc_bridge on
 			chip ec/google/chromeec
 				device pnp 0c09.0 alias chrome_ec on end
