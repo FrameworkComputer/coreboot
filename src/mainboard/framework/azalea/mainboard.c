@@ -1,6 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
+#include <amdblocks/acpimmio.h>
 #include <amdblocks/amd_pci_util.h>
+#include <commonlib/helpers.h>
 #include <device/device.h>
 
 #include "mb_gpio.h"
@@ -25,6 +27,8 @@ static void mainboard_init(void *chip_info)
 
 static void mainboard_enable(struct device *dev)
 {
+	/* Unmask eSPI IRQ 1 (Keyboard) */
+	pm_write32(PM_ESPI_INTR_CTRL, PM_ESPI_DEV_INTR_MASK & ~(BIT(1)));
 }
 
 struct chip_operations mainboard_ops = {
