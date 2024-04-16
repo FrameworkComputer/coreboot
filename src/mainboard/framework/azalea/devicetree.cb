@@ -60,6 +60,8 @@ chip soc/amd/phoenix
 	register "gpp_clk_config[5]" = "GPP_CLK_OFF" #
 	register "gpp_clk_config[6]" = "GPP_CLK_REQ" # WLAN
 
+	register "pspp_policy" = "DXIO_PSPP_DISABLED"
+	register "s0ix_enable" = "false"
 
 	register "usb_phy_custom" = "1"
 	register "usb_phy" = "{
