@@ -51,8 +51,24 @@ chip soc/amd/phoenix
 	register "i2c_pad[2].rx_level" = "I2C_PAD_RX_1_8V"
 	register "i2c_pad[3].rx_level" = "I2C_PAD_RX_1_8V"
 
+	# General Purpose PCIe clock output configuration
+	register "gpp_clk_config[0]" = "GPP_CLK_OFF" #
+	register "gpp_clk_config[1]" = "GPP_CLK_OFF" #
+	register "gpp_clk_config[2]" = "GPP_CLK_OFF" #
+	register "gpp_clk_config[3]" = "GPP_CLK_OFF" #
+	register "gpp_clk_config[4]" = "GPP_CLK_REQ" # NVME
+	register "gpp_clk_config[5]" = "GPP_CLK_OFF" #
+	register "gpp_clk_config[6]" = "GPP_CLK_REQ" # WLAN
+
 
 	device domain 0 on
+		device ref gpp_bridge_1_1 on end # MXM
+		device ref gpp_bridge_1_2 on end #
+		device ref gpp_bridge_1_3 on end #
+		device ref gpp_bridge_2_1 on end #
+		device ref gpp_bridge_2_2 on end #
+		device ref gpp_bridge_2_3 on end #
+		device ref gpp_bridge_2_4 on end #
 		device ref lpc_bridge on
 			chip ec/google/chromeec
 				device pnp 0c09.0 alias chrome_ec on end
