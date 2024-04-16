@@ -3,6 +3,8 @@
 #include <amdblocks/amd_pci_util.h>
 #include <device/device.h>
 
+#include "mb_gpio.h"
+
 /*
  * This controls the device -> IRQ routing.
  *
@@ -18,6 +20,7 @@ const struct fch_irq_routing *mb_get_fch_irq_mapping(size_t *length)
 
 static void mainboard_init(void *chip_info)
 {
+	mainboard_program_gpios();
 }
 
 static void mainboard_enable(struct device *dev)
