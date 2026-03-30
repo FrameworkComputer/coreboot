@@ -252,6 +252,7 @@ extern int debug;
 #define PCI_DEVICE_ID_INTEL_UNIONPOINT_Z370	0xa2c9
 #define PCI_DEVICE_ID_INTEL_UNIONPOINT_H310C	0xa2ca
 #define PCI_DEVICE_ID_INTEL_UNIONPOINT_X299	0xa2d2
+#define PCI_DEVICE_ID_INTEL_PANTHERLAKE		0xe402
 
 #define PCI_DEV_HAS_ME_DIFFICULT(x) ( \
 	((x) == PCI_DEVICE_ID_INTEL_ICH10R) || \
@@ -374,6 +375,7 @@ extern int debug;
 	((x) == PCI_DEVICE_ID_INTEL_UNIONPOINT_Z370) || \
 	((x) == PCI_DEVICE_ID_INTEL_UNIONPOINT_H310C) || \
 	((x) == PCI_DEVICE_ID_INTEL_UNIONPOINT_X299) || \
+	((x) == PCI_DEVICE_ID_INTEL_PANTHERLAKE) || \
 	0)
 
 // Not sure if ME present, but should be able to disable it easily
@@ -458,6 +460,7 @@ extern int debug;
 #define PCI_DEVICE_ID_INTEL_UNIONPOINT_MEI1 0xA2BA /* Union Point MEI #1 */
 #define PCI_DEVICE_ID_INTEL_UNIONPOINT_MEI2 0xA2BB /* Union Point MEI #2 */
 #define PCI_DEVICE_ID_INTEL_UNIONPOINT_MEI3 0xA2BE /* Union Point MEI #3 */
+#define PCI_DEVICE_ID_INTEL_PANTHERLAKE_MEI 0xE470 /* Panther Lake */
 
 #define PCI_DEV_HAS_SUPPORTED_ME(x) ( \
 	((x) ==  PCI_DEVICE_ID_INTEL_COUGARPOINT_1) || \
@@ -517,4 +520,5 @@ extern int debug;
 	((x) ==  PCI_DEVICE_ID_INTEL_UNIONPOINT_MEI1) || \
 	((x) ==  PCI_DEVICE_ID_INTEL_UNIONPOINT_MEI2) || \
 	((x) ==  PCI_DEVICE_ID_INTEL_UNIONPOINT_MEI3) || \
+	((x) ==  PCI_DEVICE_ID_INTEL_PANTHERLAKE_MEI) || \
 	0)
