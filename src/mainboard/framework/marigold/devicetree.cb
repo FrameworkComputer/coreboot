@@ -257,9 +257,7 @@ chip soc/intel/meteorlake
 		end
 		device ref pmc_shared_sram on end
 
-		device ref i2c0 on
-			register "serial_io_i2c_mode[PchSerialIoIndexI2C0]" = "PchSerialIoPci"
-		end
+		device ref i2c0 off end
 
 		device ref i2c1 on
 			register "serial_io_i2c_mode[PchSerialIoIndexI2C1]" = "PchSerialIoPci"
@@ -279,14 +277,8 @@ chip soc/intel/meteorlake
 			end
 		end
 
-		device ref i2c3 on
-			# Touch Screen
-			register "serial_io_i2c_mode[PchSerialIoIndexI2C3]" = "PchSerialIoPci"
-		end
-
-		device ref i2c4 on
-			register "serial_io_i2c_mode[PchSerialIoIndexI2C4]" = "PchSerialIoPci"
-		end
+		device ref i2c3 off end # Touch Screen (not populated)
+		device ref i2c4 off end
 
 		device ref i2c5 on
 			# Touchpad on I2C5 alternate pins (GPP_B20/B21)
