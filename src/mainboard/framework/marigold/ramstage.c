@@ -13,6 +13,10 @@ void mainboard_silicon_init_params(FSP_S_CONFIG *params)
 	 */
 	params->PchEspiHostC10ReportEnable = 0;
 
+	/* CNVi RF_RESET# and CLKREQ are on GPP_F4/F5, not the default GPP_A8/A9 */
+	params->CnviRfResetPinMux = 0x194CE404;
+	params->CnviClkreqPinMux = 0x394CE605;
+
 	/* Auto-notify iGPU of display changes on USB-C (for hotplug) */
 	params->TcNotifyIgd = 2;
 }
