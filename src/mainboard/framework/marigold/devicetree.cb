@@ -77,7 +77,130 @@ chip soc/intel/meteorlake
 		end
 
 		device ref vpu on end
-		device ref dtt on end
+		device ref dtt on
+			# DPTF (Intel Dynamic Tuning) policies.
+			#
+			# Values are ported from the vendor BIOS 3.06 DPTF table
+			# (ACPI SSDT "IETM", participants SEN2-SEN5/TCPU). The
+			# Framework EC owns fan PWM and the PL1/PL2/PL4/PsysPL2
+			# envelope (set over PECI in cpu_power.c); DPTF here adds
+			# OS-visible skin-temperature passive throttling within
+			# that envelope plus a critical-shutdown backstop, matching
+			# the vendor design.
+			#
+			# TSR index == Chrome EC mem-map temp-sensor order (see
+			# ec/.../marigold/overlay.dtsi named-temp-sensors). VERIFY
+			# the index<->sensor mapping on hardware with
+			# `ectool tempsinfo all` before relying on it.
+			chip drivers/intel/dptf
+				## Sensor descriptions.
+				# Hysteresis (GTSH) is NOT set here: the ChromeEC DPTF
+				# helper (ec_dptf_helpers.c write_thermal_methods) already
+				# emits Name(GTSH, 20) = 2.0C in each TSR scope, which
+				# matches the vendor table. Setting options.tsr[].hysteresis
+				# too would emit a duplicate GTSH and collide at runtime.
+				register "options.tsr[0].desc" = ""VR""        # local-f75397 (QN3, near VRs / skin)
+				register "options.tsr[1].desc" = ""CPU""       # cpu-f75303  (QN2, CPU proximity)
+				register "options.tsr[2].desc" = ""Battery""   # battery temp
+				register "options.tsr[3].desc" = ""DDR""       # ddr-f75303  (QN1, near RAM / bottom skin)
+
+				## Passive policy: throttle the CPU on skin temperature.
+				# Vendor uses skin _PSV=65C (SEN2-5) and CPU _PSV=TJMX=110C,
+				# i.e. cooling is skin-driven, not package-driven. CPU self
+				# kept just under Tjmax; CPU-proximity sensor (TSR1) trips
+				# later than the skin sensors since it reads hotter.
+				register "policies.passive" = "{
+						[0] = DPTF_PASSIVE(CPU, CPU,           100, 5000),
+						[1] = DPTF_PASSIVE(CPU, TEMP_SENSOR_0,  65, 5000),
+						[2] = DPTF_PASSIVE(CPU, TEMP_SENSOR_1,  90, 5000),
+						[3] = DPTF_PASSIVE(CPU, TEMP_SENSOR_3,  65, 5000),
+				}"
+
+				## Critical policy: shutdown backstop.
+				# Vendor SNCC=80C on skin sensors, TCPU _CRT=110C, EC halts
+				# battery at 60C. Kept a couple degrees under those.
+				register "policies.critical" = "{
+						[0] = DPTF_CRITICAL(CPU,           105, SHUTDOWN),
+						[1] = DPTF_CRITICAL(TEMP_SENSOR_0,  80, SHUTDOWN),
+						[2] = DPTF_CRITICAL(TEMP_SENSOR_1,  90, SHUTDOWN),
+						[3] = DPTF_CRITICAL(TEMP_SENSOR_2,  60, SHUTDOWN),
+						[4] = DPTF_CRITICAL(TEMP_SENSOR_3,  80, SHUTDOWN),
+				}"
+
+				## Active policy: fan ramp.
+				# Vendor active trips AC0=60 / AC1=50 / AC2=40 C on the skin
+				# sensors; CPU-proximity sensor uses the EC fan_off=50 /
+				# fan_max=68 window. fan_pct maps into controls.fan_perf.
+				register "policies.active" = "{
+						[0] = {
+							.target = DPTF_TEMP_SENSOR_0,
+							.thresholds = {
+									TEMP_PCT(60, 100),
+									TEMP_PCT(50,  55),
+									TEMP_PCT(40,  25),
+								}
+							},
+						[1] = {
+							.target = DPTF_TEMP_SENSOR_1,
+							.thresholds = {
+									TEMP_PCT(68, 100),
+									TEMP_PCT(58,  55),
+									TEMP_PCT(50,  25),
+								}
+							},
+						[2] = {
+							.target = DPTF_TEMP_SENSOR_3,
+							.thresholds = {
+									TEMP_PCT(60, 100),
+									TEMP_PCT(50,  55),
+									TEMP_PCT(40,  25),
+								}
+							}
+				}"
+
+				## Power-limit window advertised to the OS (PPCC).
+				# The EC sets the actual PL1/PL2 envelope (28-30W / 40-64W
+				# in cpu_power.c); this lets DPTF passive trim PL1 within it.
+				register "controls.power_limits" = "{
+						.pl1 = {
+							.min_power = 15000,
+							.max_power = 28000,
+							.time_window_min = 28 * MSECS_PER_SEC,
+							.time_window_max = 32 * MSECS_PER_SEC,
+							.granularity = 200,
+						},
+						.pl2 = {
+							.min_power = 40000,
+							.max_power = 64000,
+							.time_window_min = 28 * MSECS_PER_SEC,
+							.time_window_max = 32 * MSECS_PER_SEC,
+							.granularity = 1000,
+						}
+				}"
+
+				## Fan performance states (Percent, RPM, Noise, Power).
+				# RPM range from EC fan.dtsi: rpm_min=2100, rpm_max=6100.
+				register "controls.fan_perf" = "{
+						[0] = { 100, 6100, 220, 2200, },
+						[1] = {  90, 5500, 195, 1950, },
+						[2] = {  80, 4900, 170, 1700, },
+						[3] = {  70, 4300, 145, 1450, },
+						[4] = {  60, 3700, 120, 1200, },
+						[5] = {  50, 3100,  95,  950, },
+						[6] = {  40, 2500,  70,  700, },
+						[7] = {  30, 2100,  45,  450, },
+						[8] = {  15,    0,  20,  200, },
+						[9] = {   0,    0,   0,   50, }
+				}"
+
+				## Fan options
+				register "options.fan.fine_grained_control" = "true"
+				register "options.fan.step_size" = "2"
+
+				device generic 0 alias dptf_policy on end
+			end
+		end
+
 		device ref tbt_pcie_rp0 on end
 		device ref tbt_pcie_rp1 on end
 		device ref tbt_pcie_rp2 on end
