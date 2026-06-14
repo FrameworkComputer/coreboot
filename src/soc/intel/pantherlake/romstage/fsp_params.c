@@ -3,7 +3,9 @@
 #include <cpu/intel/common/common.h>
 #include <cpu/x86/msr.h>
 #include <cpu/x86/mtrr.h>
+#include <device/device.h>
 #include <device/pci.h>
+#include <drivers/wifi/generic/wifi.h>
 #include <elog.h>
 #include <fsp/debug.h>
 #include <fsp/fsp_debug_event.h>
@@ -422,6 +424,19 @@ static void fill_fspm_acoustic_params(FSP_M_CONFIG *m_cfg,
 	}
 }
 
+static void fill_fspm_cnvi_params(FSP_M_CONFIG *m_cfg,
+				  const struct soc_intel_pantherlake_config *config)
+{
+	/* CNVi DDR RFI Mitigation */
+	const struct device_path path[] = {
+		{ .type = DEVICE_PATH_PCI, .pci.devfn = PCI_DEVFN_CNVI_WIFI },
+		{ .type = DEVICE_PATH_GENERIC, .generic.id = 0 } };
+	const struct device *dev = find_dev_nested_path(pci_root_bus(), path,
+							ARRAY_SIZE(path));
+	if (is_dev_enabled(dev))
+		m_cfg->CnviDdrRfim = wifi_generic_cnvi_ddr_rfim_enabled(dev);
+}
+
 static void soc_memory_init_params(FSP_M_CONFIG *m_cfg,
 				   const struct soc_intel_pantherlake_config *config)
 {
@@ -444,6 +459,7 @@ static void soc_memory_init_params(FSP_M_CONFIG *m_cfg,
 		fill_fspm_thermal_params,
 		fill_fspm_vr_config_params,
 		fill_fspm_acoustic_params,
+		fill_fspm_cnvi_params,
 	};
 
 	for (size_t i = 0; i < ARRAY_SIZE(fill_fspm_params); i++)
