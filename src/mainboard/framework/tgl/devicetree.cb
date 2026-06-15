@@ -1,0 +1,336 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+chip soc/intel/tigerlake
+	device cpu_cluster 0 on
+		# Enable Enhanced Intel SpeedStep
+		register "eist_enable" = "true"
+	end
+
+	# GPE0 routing. Only three groups can be mapped, and every pad that
+	# declares a wake-capable GpioInt() needs its group here. All of them
+	# are in GPP_B:
+	#   touchpad     (GPP_B3  / SOC_TP_INT#)
+	#   touchscreen  (GPP_B19 / SOC_TS_INT#, touch SKUs only)
+	# The EC signals its events over eSPI (GPE0_ESPI). GPP_D and GPP_E hold
+	# no wake sources on this board.
+	register "pmc_gpe0_dw0" = "GPP_B"
+	register "pmc_gpe0_dw1" = "GPP_D"
+	register "pmc_gpe0_dw2" = "GPP_E"
+
+	# S0ix enable for modern standby
+	register "s0ix_enable" = "true"
+
+	# The board has the external bypass rails (VNN_CTRL/V1P05_CTRL on
+	# GPP_F22/F23). Allow S0i2.0 and S0i3.0 only, like the vendor firmware.
+	register "external_bypass" = "true"
+	register "LpmStateDisableMask" = "
+		LPM_S0i2_1 |
+		LPM_S0i2_2 |
+		LPM_S0i3_1 |
+		LPM_S0i3_2 |
+		LPM_S0i3_3 |
+		LPM_S0i3_4
+	"
+
+	# SAGV + power management
+	register "SaGv" = "SaGv_Enabled"
+	register "enable_c6dram" = "true"
+
+	device domain 0 on
+		subsystemid 0xf111 0x0001 inherit
+
+		device ref system_agent on end
+
+		device ref igpu on
+			# eDP on DDI A, external displays over DP alternate mode
+			# on the four Type-C ports (DDI 1-4). There is no HDMI or
+			# DP connector, so DDI B/C stay unused.
+			register "DdiPortAConfig" = "DDI_PORT_CFG_EDP"
+			register "DdiPortAHpd" = "1"
+			register "gfx" = "GMA_DEFAULT_PANEL(0)"
+			chip drivers/gfx/generic
+				register "device_count" = "5"
+				# DDI A: eDP panel
+				register "device[0].name" = ""LCD0""
+				register "device[0].type" = "panel"
+				# DP alternate mode outputs of the Type-C connectors.
+				register "device[1].name" = ""DD01""
+				register "device[1].use_pld" = "true"
+				register "device[1].pld" = "ACPI_PLD_TYPE_C(RIGHT, RIGHT, ACPI_PLD_GROUP(1, 0))"
+				register "device[2].name" = ""DD02""
+				register "device[2].use_pld" = "true"
+				register "device[2].pld" = "ACPI_PLD_TYPE_C(RIGHT, LEFT, ACPI_PLD_GROUP(1, 1))"
+				register "device[3].name" = ""DD03""
+				register "device[3].use_pld" = "true"
+				register "device[3].pld" = "ACPI_PLD_TYPE_C(LEFT, RIGHT, ACPI_PLD_GROUP(2, 0))"
+				register "device[4].name" = ""DD04""
+				register "device[4].use_pld" = "true"
+				register "device[4].pld" = "ACPI_PLD_TYPE_C(LEFT, LEFT, ACPI_PLD_GROUP(2, 1))"
+				device generic 0 on end
+			end
+		end
+
+		device ref dptf on end
+
+		# CPU PCIe root port, x4 Gen4 to the M.2 2280 NVMe socket,
+		# CLKOUT_PCIE_0 / SRCCLKREQ0# (GPP_D5)
+		device ref peg on
+			register "PcieClkSrcUsage[0]" = "0x40"
+			register "PcieClkSrcClkReq[0]" = "0"
+			smbios_slot_desc "SlotTypeM2Socket3" "SlotLengthOther"
+				"M.2/M 2280 (JSSD)" "SlotDataBusWidth4X"
+		end
+
+		device ref tbt_pcie_rp0 on end
+		device ref tbt_pcie_rp1 on end
+		device ref tbt_pcie_rp2 on end
+		device ref tbt_pcie_rp3 on end
+
+		device ref gna on end
+		device ref crashlog on end
+
+		device ref north_xhci on
+			# All four Type-C ports are enabled. Each has a Burnside
+			# Bridge retimer between the SoC and the connector, which
+			# also handles the AUX/SBU orientation (TCSS_PORT_DEFAULT).
+			register "UsbTcPortEn" = "0xf"
+			# TCP0-3 = JTYPEC1-4. Overcurrent comes from the PD
+			# controllers: OC0 for JTYPEC1+2, OC3 for JTYPEC3+4.
+			register "tcss_ports[0]" = "TCSS_PORT_DEFAULT(OC0)"
+			register "tcss_ports[1]" = "TCSS_PORT_DEFAULT(OC0)"
+			register "tcss_ports[2]" = "TCSS_PORT_DEFAULT(OC3)"
+			register "tcss_ports[3]" = "TCSS_PORT_DEFAULT(OC3)"
+			chip drivers/usb/acpi
+				device ref tcss_root_hub on
+					chip drivers/usb/acpi
+						# right side, back
+						register "desc" = ""USB Type-C Port 1""
+						register "type" = "UPC_TYPE_C_USB2_SS_SWITCH"
+						register "use_custom_pld" = "true"
+						register "custom_pld" = "ACPI_PLD_TYPE_C(RIGHT, RIGHT, ACPI_PLD_GROUP(1, 0))"
+						device ref tcss_usb3_port1 on end
+					end
+					chip drivers/usb/acpi
+						# right side, front
+						register "desc" = ""USB Type-C Port 2""
+						register "type" = "UPC_TYPE_C_USB2_SS_SWITCH"
+						register "use_custom_pld" = "true"
+						register "custom_pld" = "ACPI_PLD_TYPE_C(RIGHT, LEFT, ACPI_PLD_GROUP(1, 1))"
+						device ref tcss_usb3_port2 on end
+					end
+					chip drivers/usb/acpi
+						# left side, front
+						register "desc" = ""USB Type-C Port 3""
+						register "type" = "UPC_TYPE_C_USB2_SS_SWITCH"
+						register "use_custom_pld" = "true"
+						register "custom_pld" = "ACPI_PLD_TYPE_C(LEFT, RIGHT, ACPI_PLD_GROUP(2, 0))"
+						device ref tcss_usb3_port3 on end
+					end
+					chip drivers/usb/acpi
+						# left side, back
+						register "desc" = ""USB Type-C Port 4""
+						register "type" = "UPC_TYPE_C_USB2_SS_SWITCH"
+						register "use_custom_pld" = "true"
+						register "custom_pld" = "ACPI_PLD_TYPE_C(LEFT, LEFT, ACPI_PLD_GROUP(2, 1))"
+						device ref tcss_usb3_port4 on end
+					end
+				end
+			end
+		end
+
+		# USB4 retimers, two per Thunderbolt DMA controller.
+		# GPP_A23 (SOC_DG_BB_FORCE_PWR) drives FORCE_PWR of all four.
+		device ref tbt_dma0 on
+			chip drivers/intel/usb4/retimer
+				register "dfp[0].power_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_A23)"
+				use tcss_usb3_port1 as dfp[0].typec_port
+				register "dfp[1].power_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_A23)"
+				use tcss_usb3_port2 as dfp[1].typec_port
+				device generic 0 on end
+			end
+		end
+		device ref tbt_dma1 on
+			chip drivers/intel/usb4/retimer
+				register "dfp[0].power_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_A23)"
+				use tcss_usb3_port3 as dfp[0].typec_port
+				register "dfp[1].power_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_A23)"
+				use tcss_usb3_port4 as dfp[1].typec_port
+				device generic 0 on end
+			end
+		end
+
+		# Integrated Sensor Hub, sensors hang off ISH_I2C2 (GPP_B9/GPP_B10)
+		device ref ish on end
+
+		device ref south_xhci on
+			register "usb2_ports" = "{
+				[0] = USB2_PORT_TYPE_C(OC0),	/* JTYPEC1 */
+				/* [1] = DCI Debug, unpopulated on MP boards */
+				[2] = USB2_PORT_TYPE_C(OC0),	/* JTYPEC2 */
+				[3] = USB2_PORT_TYPE_C(OC3),	/* JTYPEC3 */
+				[5] = USB2_PORT_TYPE_C(OC3),	/* JTYPEC4 */
+				[6] = USB2_PORT_MID(OC_SKIP),	/* Camera */
+				/* [7] = On eDP connector for a USB touch panel - Unused */
+				[8] = USB2_PORT_MID(OC_SKIP),	/* Fingerprint reader */
+				[9] = USB2_PORT_MID(OC_SKIP),	/* M.2 Key-E Bluetooth */
+			}"
+			# Type-C SuperSpeed is routed through the TCSS
+			chip drivers/usb/acpi
+				device ref xhci_root_hub on
+					chip drivers/usb/acpi
+						# right side, back
+						register "desc" = ""USB Type-C Port 1""
+						register "type" = "UPC_TYPE_C_USB2_SS_SWITCH"
+						register "use_custom_pld" = "true"
+						register "custom_pld" = "ACPI_PLD_TYPE_C(RIGHT, RIGHT, ACPI_PLD_GROUP(1, 0))"
+						device ref usb2_port1 on end
+					end
+					chip drivers/usb/acpi
+						# right side, front
+						register "desc" = ""USB Type-C Port 2""
+						register "type" = "UPC_TYPE_C_USB2_SS_SWITCH"
+						register "use_custom_pld" = "true"
+						register "custom_pld" = "ACPI_PLD_TYPE_C(RIGHT, LEFT, ACPI_PLD_GROUP(1, 1))"
+						device ref usb2_port3 on end
+					end
+					chip drivers/usb/acpi
+						# left side, front
+						register "desc" = ""USB Type-C Port 3""
+						register "type" = "UPC_TYPE_C_USB2_SS_SWITCH"
+						register "use_custom_pld" = "true"
+						register "custom_pld" = "ACPI_PLD_TYPE_C(LEFT, RIGHT, ACPI_PLD_GROUP(2, 0))"
+						device ref usb2_port4 on end
+					end
+					chip drivers/usb/acpi
+						# left side, back
+						register "desc" = ""USB Type-C Port 4""
+						register "type" = "UPC_TYPE_C_USB2_SS_SWITCH"
+						register "use_custom_pld" = "true"
+						register "custom_pld" = "ACPI_PLD_TYPE_C(LEFT, LEFT, ACPI_PLD_GROUP(2, 1))"
+						device ref usb2_port6 on end
+					end
+					# Internal devices (not user visible)
+					chip drivers/usb/acpi
+						register "desc" = ""USB2 Camera""
+						register "type" = "UPC_TYPE_INTERNAL"
+						device ref usb2_port7 on end
+					end
+					chip drivers/usb/acpi
+						register "desc" = ""USB2 Fingerprint Reader""
+						register "type" = "UPC_TYPE_INTERNAL"
+						device ref usb2_port9 on end
+					end
+					chip drivers/usb/acpi
+						register "desc" = ""USB2 Bluetooth""
+						register "type" = "UPC_TYPE_INTERNAL"
+						device ref usb2_port10 on end
+					end
+				end
+			end
+		end
+
+		device ref shared_ram on end
+
+		# CNVi WiFi/Bluetooth (Intel AX201), Bluetooth over USB2 port 10
+		device ref cnvi_wifi on
+			register "CnviBtCore" = "true"
+			chip drivers/wifi/generic
+				register "wake" = "GPE0_PME_B0"
+				device generic 0 on end
+			end
+		end
+
+		# M.2 2230 Key-E slot, PCIe lane for discrete cards (e.g. AX210),
+		# CLKOUT_PCIE_4 / SRCCLKREQ4# (GPP_H10). The card's PEWAKE0# is
+		# connected to the PCH WAKE# pin (RC4137 is a short).
+		# The stock AX201 uses CNVi instead and leaves this port empty.
+		device ref pcie_rp10 on
+			register "PcieRpLtrEnable[9]" = "true"
+			register "PcieRpSlotImplemented[9]" = "true"
+			register "PcieClkSrcUsage[4]" = "9"
+			register "PcieClkSrcClkReq[4]" = "4"
+			chip drivers/wifi/generic
+				register "wake" = "GPE0_PCI_EXP"
+				device pci 00.0 on end
+			end
+			smbios_slot_desc "SlotTypeM2Socket1_SD" "SlotLengthOther"
+				"M.2/E 2230 (JWLAN)" "SlotDataBusWidth1X"
+		end
+
+		device ref i2c0 on
+			register "SerialIoI2cMode[PchSerialIoIndexI2C0]" = "PchSerialIoPci"
+			register "common_soc_config.i2c[0].speed" = "I2C_SPEED_FAST"
+			# Touch Screen (same panel as sakura; may not be populated)
+			chip drivers/i2c/hid
+				register "generic.hid" = ""CSW1322""
+				register "generic.desc" = ""Touchscreen""
+				register "generic.irq_gpio" = "ACPI_GPIO_IRQ_LEVEL_LOW_WAKE(GPP_B19)"
+				# Panel is optional: probe the bus and only emit the
+				# ACPI node when the touchscreen actually ACKs.
+				register "generic.detect" = "1"
+				register "hid_desc_reg_offset" = "0x01"
+				device i2c 41 on end
+			end
+		end
+
+		device ref i2c1 on
+			register "SerialIoI2cMode[PchSerialIoIndexI2C1]" = "PchSerialIoPci"
+			register "common_soc_config.i2c[1].speed" = "I2C_SPEED_FAST"
+			# I2C HID interface of the EC, reports the media keys of the
+			# Fn row and the wireless kill switch
+			chip drivers/i2c/hid
+				register "generic.hid" = ""FRMW0001""
+				register "generic.desc" = ""EC Mediakeys""
+				register "generic.irq_gpio" = "ACPI_GPIO_IRQ_LEVEL_LOW(GPP_E15)"
+				register "hid_desc_reg_offset" = "0x55"
+				device i2c 50 on end
+			end
+		end
+
+		device ref i2c3 on
+			register "SerialIoI2cMode[PchSerialIoIndexI2C3]" = "PchSerialIoPci"
+			register "common_soc_config.i2c[3].speed" = "I2C_SPEED_FAST"
+			chip drivers/i2c/hid
+				register "generic.hid" = ""PIXA3854""
+				register "generic.desc" = ""Touchpad""
+				register "generic.irq_gpio" = "ACPI_GPIO_IRQ_LEVEL_LOW_WAKE(GPP_B3)"
+				register "hid_desc_reg_offset" = "0x20"
+				device i2c 2c on end
+			end
+		end
+
+		device ref heci1 on end
+
+		# Unused, but must stay enabled so that the UART2 function on the
+		# same device (00:19.2) gets enumerated
+		device ref i2c4 on
+			register "SerialIoI2cMode[PchSerialIoIndexI2C4]" = "PchSerialIoPci"
+		end
+
+		# BIOS/OS console on the debug header
+		device ref uart2 on
+			register "SerialIoUartMode[PchSerialIoIndexUART2]" = "PchSerialIoSkipInit"
+		end
+
+		device ref pch_espi on
+			# EC host command ranges: 0x200-0x20f
+			register "gen1_dec" = "LPC_IO(0x200, 0x10)"
+			# EC host command parameter/EMI window: 0x800-0x8ff
+			register "gen2_dec" = "LPC_IO(0x800, 0x100)"
+			# Nuvoton NPCT750 TPM on SPI0 CS2, memory mapped TIS
+			chip drivers/pc80/tpm
+				device pnp 0c31.0 on end
+			end
+			chip ec/google/chromeec
+				device pnp 0c09.0 on end
+			end
+		end
+
+		device ref hda on
+			register "PchHdaAudioLinkHdaEnable" = "1"
+		end
+
+		device ref smbus on end
+		device ref fast_spi on end
+	end
+end
