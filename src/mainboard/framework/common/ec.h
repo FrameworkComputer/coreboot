@@ -62,8 +62,14 @@
  * Framework ACPI shared memory with the EC
  *
  * Contains a couple of flags and up-to-date system information.
+ *
+ * The Microchip MEC1521 EC of the 11th/12th/13th Gen Laptop 13 has no such
+ * window in flat I/O space, its equivalent is only reachable through the EMI
+ * interface.
  */
+#if !CONFIG(EC_GOOGLE_CHROMEEC_MEC)
 #define EC_FRAMEWORK_ACPI_SHARED_MEM_IO 0xF00
+#endif
 
 /*
  * CFR option controlling the fingerprint reader LED brightness.
