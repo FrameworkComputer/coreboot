@@ -117,7 +117,7 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC(GPP_D16, NONE),
 	PAD_NC(GPP_D17, NONE),
 	PAD_CFG_GPO(GPP_D18, 1, DEEP),					/* TCHSCR_EN (100k pulldown) */
-	PAD_NC(GPP_D19, NONE),						/* EC_SCI# - TODO */
+	PAD_CFG_GPI_SCI_LOW(GPP_D19, NONE, PLTRST, LEVEL),		/* GPP_D19 / EC_SCI# */
 
 	/* ------- GPIO Community 2 ------- */
 

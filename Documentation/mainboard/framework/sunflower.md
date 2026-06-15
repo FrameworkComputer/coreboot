@@ -60,6 +60,7 @@ make distclean # Note: this will remove your current config, if it exists.
 touch .config
 ./util/scripts/config --enable VENDOR_FRAMEWORK
 ./util/scripts/config --enable BOARD_FRAMEWORK_SUNFLOWER
+make olddefconfig
 make -j$(nproc)
 ```
 
