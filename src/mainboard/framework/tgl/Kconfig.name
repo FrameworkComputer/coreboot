@@ -1,0 +1,4 @@
+## SPDX-License-Identifier: GPL-2.0-or-later
+
+config BOARD_FRAMEWORK_TGL
+	bool "Laptop 13 (11th Gen Intel Core)"
