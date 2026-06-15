@@ -1,0 +1,7 @@
+chip soc/intel/tigerlake
+	device domain 0 on
+		device ref uart2 on
+			register "serial_io_uart_mode[PchSerialIoIndexUART2]" = "PchSerialIoSkipInit"
+		end
+	end
+end

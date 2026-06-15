@@ -124,6 +124,7 @@ Monolith <facebook/monolith.md>
 ```{toctree}
 :maxdepth: 1
 
+Laptop 13 (11th Gen Intel Core) <framework/tgl.md>
 Laptop 13 Intel Core Ultra Series 1 (Marigold) <framework/marigold.md>
 Laptop 13 Intel Core Ultra Series 3 (Sakura) <framework/sakura.md>
 ```

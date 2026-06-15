@@ -1,0 +1,50 @@
+## SPDX-License-Identifier: GPL-2.0-or-later
+
+config BOARD_FRAMEWORK_TGL_COMMON
+	def_bool n
+	select SYSTEM_TYPE_LAPTOP
+
+config BOARD_FRAMEWORK_TGL
+	select BOARD_FRAMEWORK_TGL_COMMON
+	select SOC_INTEL_TIGERLAKE
+
+if BOARD_FRAMEWORK_TGL
+
+config FMDFILE
+	default "src/mainboard/\$(CONFIG_MAINBOARD_DIR)/board.fmd"
+
+config MAINBOARD_DIR
+	default "framework/tgl"
+
+config MAINBOARD_PART_NUMBER
+	default "Framework Laptop 13 (11th Gen Intel Core)"
+
+config MAINBOARD_SMBIOS_PRODUCT_NAME
+	default "Laptop 13 (11th Gen Intel Core)"
+
+config MAINBOARD_FAMILY
+	default "Laptop"
+
+config CONSOLE_POST
+	default y
+
+config D3COLD_SUPPORT
+	default y
+
+config DIMM_SPD_SIZE
+	default 1024
+
+config ONBOARD_VGA_IS_PRIMARY
+	default y
+
+config POST_DEVICE
+	default n
+
+config UART_FOR_CONSOLE
+	default 0
+
+# PM Timer Disabled, saves power
+config USE_PM_ACPI_TIMER
+	default n
+
+endif
