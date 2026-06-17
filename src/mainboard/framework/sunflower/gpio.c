@@ -76,7 +76,7 @@ static const struct pad_config gpio_table[] = {
 	/* ------- GPIO Group GPP_H ------- */
 	PAD_NC(GPP_H0, NONE),						/* SOC_GPP_H0 (Strap, NC) */
 	PAD_NC(GPP_H1, NONE),						/* Boot Strap 2 (NC) */
-	PAD_CFG_GPO(GPP_H2, 1, PLTRST),					/* RTD3_WLAN_PLT_RST# */
+	PAD_NC(GPP_H2, DN_20K),						/* RTD3_WLAN_PLT_RST# - left as input like vendor; onboard 10k pull-up holds reset deasserted */
 	PAD_NC(GPP_H3, NONE),
 	PAD_CFG_NF(GPP_H4, NONE, PLTRST, NF1),				/* I2C0_SDA (Touchscreen) */
 	PAD_CFG_NF(GPP_H5, NONE, PLTRST, NF1),				/* I2C0_SCL (Touchscreen) */
@@ -117,7 +117,7 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC(GPP_D16, NONE),
 	PAD_NC(GPP_D17, NONE),
 	PAD_CFG_GPO(GPP_D18, 1, DEEP),					/* TCHSCR_EN (100k pulldown) */
-	PAD_CFG_GPI_SCI_LOW(GPP_D19, NONE, PLTRST, LEVEL),		/* GPP_D19 / EC_SCI# */
+	PAD_CFG_GPI_SCI_HIGH(GPP_D19, UP_20K, PLTRST, EDGE_SINGLE),	/* GPP_D19 / EC_SCI# (matches vendor: rising-edge SCI, internal pull-up) */
 
 	/* ------- GPIO Community 2 ------- */
 
