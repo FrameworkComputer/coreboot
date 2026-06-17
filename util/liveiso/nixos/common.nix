@@ -8,6 +8,41 @@
 		<nixpkgs/nixos/modules/installer/cd-dvd/iso-image.nix>
 	];
 
+	# Build coreboot-utils from this local coreboot checkout instead of the
+	# revision nixpkgs pins, so local edits under util/ land in the ISO.
+	# nixpkgs stays pinned -- .override re-evaluates the pinned coreboot-utils
+	# package with only its `fetchgit` swapped for our local tree. Because every
+	# tool (cbmem, cbfstool, ...) and the buildEnv share that one fetchgit, this
+	# single override covers them all.
+	nixpkgs.overlays = [
+		(final: prev:
+			let
+				corebootRoot = ../../..; # this file lives in util/liveiso/nixos
+				rootStr = toString corebootRoot;
+				# Big dirs (relative to the coreboot root) the util builds don't
+				# need; dropped so we don't copy gigabytes into the Nix store.
+				# Match by RELATIVE PATH, not basename: src/ has its own
+				# vendorcode/intel/fsp that cbfstool needs, so we can't blanket
+				# drop every dir named "fsp".
+				drop = [
+					"build" "payloads" "util/crossgcc"
+					"3rdparty/fsp" "3rdparty/blobs" "3rdparty/amd_blobs"
+					"3rdparty/arm-trusted-firmware" "3rdparty/stm"
+					"3rdparty/intel-microcode" "3rdparty/qc_blobs"
+				];
+				corebootSrc = builtins.path {
+					name = "coreboot-local-src";
+					path = corebootRoot;
+					filter = path: type:
+						let rel = prev.lib.removePrefix (rootStr + "/") (toString path); in
+						baseNameOf path != ".git"
+						&& !(prev.lib.any (d: rel == d || prev.lib.hasPrefix (d + "/") rel) drop);
+				};
+			in {
+				coreboot-utils = prev.coreboot-utils.override { fetchgit = _: corebootSrc; };
+			})
+	];
+
 	system.stateVersion = "26.05";
 
 	isoImage = {
