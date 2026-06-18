@@ -27,6 +27,7 @@
 #include "gpio_names/jasperlake.h"
 #include "gpio_names/meteorlake.h"
 #include "gpio_names/pantherlake.h"
+#include "gpio_names/wildcatlake.h"
 
 #define SBBAR_SIZE	(16 * MiB)
 #define PCR_PORT_SIZE	(64 * KiB)
@@ -344,6 +345,42 @@ const struct gpio_community *const *get_gpio_communities(struct pci_dev *const s
 		*pad_stepping = 16;
 		*pad_mode_mask = 0xf;
 		return pantherlake_pch_communities;
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_0:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_1:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_2:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_3:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_4:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_5:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_6:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_7:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_8:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_9:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_10:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_11:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_12:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_13:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_14:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_15:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_16:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_17:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_18:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_19:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_20:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_21:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_22:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_23:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_24:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_25:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_26:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_27:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_28:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_29:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_30:
+	case PCI_DEVICE_ID_INTEL_WCL_ESPI_31:
+		*community_count = ARRAY_SIZE(wildcatlake_pch_communities);
+		*pad_stepping = 16;
+		*pad_mode_mask = 0xf;
+		return wildcatlake_pch_communities;
 	default:
 		return NULL;
 	}
