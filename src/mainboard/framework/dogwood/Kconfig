@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+config BOARD_FRAMEWORK_DOGWOOD
+	select BOARD_ROMSIZE_KB_32768
+	select SOC_AMD_STRIX_HALO
+
+if BOARD_FRAMEWORK_DOGWOOD
+
+config MAINBOARD_DIR
+	default "framework/dogwood"
+
+config MAINBOARD_PART_NUMBER
+	default "Dogwood"
+
+config FMDFILE
+	default "src/mainboard/\$(CONFIG_MAINBOARD_DIR)/coreboot.fmd"
+
+endif

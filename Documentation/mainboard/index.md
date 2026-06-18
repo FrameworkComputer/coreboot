@@ -126,6 +126,7 @@ Monolith <facebook/monolith.md>
 
 Laptop 13 Intel Core Ultra Series 1 (Marigold) <framework/marigold.md>
 Laptop 13 Intel Core Ultra Series 3 (Sakura) <framework/sakura.md>
+Laptop Desktop AMD Ryzen AI 300 (Dogwood) <framework/dogwood.md>
 ```
 ## Foxconn
 
