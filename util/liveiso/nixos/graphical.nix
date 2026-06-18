@@ -48,7 +48,7 @@
 	services.displayManager = {
 		autoLogin = {
 			enable = true;
-			user = "user";
+			user = "nixos";
 		};
 	};
 
@@ -59,7 +59,7 @@
 		alsa.enable = true;
 	};
 
-	users.users.user.extraGroups = [ "audio" "video" "input" ];
+	users.users.nixos.extraGroups = [ "audio" "video" "input" ];
 
 	environment.systemPackages = with pkgs; [
 		firefox

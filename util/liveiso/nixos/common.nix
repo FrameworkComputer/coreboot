@@ -3,9 +3,15 @@
 { config, options, pkgs, ... }:
 
 {
+	# Build on installation-cd-base.nix -- the same base every official NixOS
+	# install ISO uses -- rather than bare iso-image.nix. It pulls in the base +
+	# installation-device profiles (hardware scan modules, the "nixos" installer
+	# user, channel.nix, broad hardware support, EFI/USB bootable, memtest, etc.).
+	# A bare iso-image.nix ISO is not recognized by Ventoy as a NixOS installer
+	# and fails to boot ("INIT NOT FOUND" / "No init= parameter"); matching the
+	# official layout fixes that.
 	imports = [
-		<nixpkgs/nixos/modules/installer/cd-dvd/channel.nix>
-		<nixpkgs/nixos/modules/installer/cd-dvd/iso-image.nix>
+		<nixpkgs/nixos/modules/installer/cd-dvd/installation-cd-base.nix>
 	];
 
 	system.stateVersion = "26.05";
@@ -84,18 +90,11 @@
 
 	security.sudo.wheelNeedsPassword = false;
 
-	users = {
-		groups.user = {};
-		users = {
-			root.initialHashedPassword = "";
-			user = {
-				isNormalUser = true;
-				group = "user";
-				extraGroups = [ "users" "wheel" "networkmanager" "uucp" "flashrom" ];
-				initialHashedPassword = "";
-			};
-		};
-	};
+	# installation-device.nix (via installation-cd-base) already provides a
+	# passwordless "nixos" user (wheel, networkmanager, video) and passwordless
+	# root, and autologins "nixos" on the console. Just add the groups our
+	# firmware tooling needs: uucp (serial consoles/flashers) and flashrom.
+	users.users.nixos.extraGroups = [ "uucp" "flashrom" ];
 
 	programs.flashrom.enable = true;
 
