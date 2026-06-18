@@ -4,6 +4,4 @@
 	imports = [
 		./common.nix
 	];
-
-	services.getty.autologinUser = "user";
 }
