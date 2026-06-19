@@ -3,11 +3,43 @@ FLASH 32M {
 	SI_ME 10128K
 	SI_DEVICEEXP2 6240K
 	SI_BIOS@16M 16M {
-		RW_MRC_CACHE 64K
+		# Persistent, slot-agnostic regions. SMMSTORE must be first so it
+		# lands on the 16M (64K-aligned) base: SMM_BLOCK_SIZE is 64K and
+		# store.c static-asserts FMAP_SECTION_SMMSTORE_START alignment.
 		SMMSTORE(PRESERVE) 256K
+		RW_MRC_CACHE 64K
+		# Caches the LPCAMM2 SPD so warm/subsequent boots skip the slow
+		# by-word SMBus read (~3.7s in romstage). Size = DIMM_MAX(16) *
+		# DIMM_SPD_SIZE(1024) + CRC, rounded up to a 4K-aligned 20K.
+		RW_SPD_CACHE(PRESERVE) 20K
+		RW_ELOG(PRESERVE) 4K
+		RW_NVRAM(PRESERVE) 8K
+		RW_SHARED 16K {
+			SHARED_DATA 8K
+			VBLOCK_DEV 8K
+		}
+		# Two updatable, signature-verified copies (~4M used, 5M each for
+		# FSP-M + edk2 UEFIPAYLOAD headroom).
+		RW_SECTION_A 5M {
+			VBLOCK_A 8K
+			FW_MAIN_A(CBFS)
+			RW_FWID_A 128
+		}
+		RW_SECTION_B 5M {
+			VBLOCK_B 8K
+			FW_MAIN_B(CBFS)
+			RW_FWID_B 128
+		}
+		# Write-protected recovery copy (the "always boots" one). Must stay
+		# last so its bootblock lands at the top of flash (reset vector).
 		WP_RO {
-			FMAP 4K
-			COREBOOT(CBFS)
+			RO_VPD(PRESERVE) 16K
+			RO_SECTION {
+				FMAP 4K
+				RO_FRID 128
+				GBB 16K
+				COREBOOT(CBFS)
+			}
 		}
 	}
 }

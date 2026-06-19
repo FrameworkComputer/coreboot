@@ -27,6 +27,16 @@ config BOARD_FRAMEWORK_SAKURA_COMMON
 	select SPD_READ_BY_WORD
 	select SYSTEM_TYPE_LAPTOP
 	select TPM_MEASURED_BOOT
+	select VBOOT
+	# No ChromeOS board glue (recovery/WP switch GPIOs, fill_lb_gpios); use
+	# weak stubs. A/B slot failover relies on verification + try-counter, not
+	# the EC recovery switch.
+	select VBOOT_NO_BOARD_SUPPORT
+	# VBOOT sets dead_code() in display_init_required() unless one of the
+	# display options is chosen; this laptop always brings up the panel.
+	select VBOOT_ALWAYS_ENABLE_DISPLAY
+	select VBOOT_SLOTS_RW_AB
+	# Verstage/CMOS-VBNV/HW-crypto come from the PTL SoC's `config VBOOT`.
 
 config BOARD_FRAMEWORK_SAKURA
 	select BOARD_FRAMEWORK_SAKURA_COMMON
@@ -40,6 +50,21 @@ config MAINBOARD_DIR
 
 config FMDFILE
 	default "src/mainboard/\$(CONFIG_MAINBOARD_DIR)/board.fmd"
+
+# Static test HWID. Without this the GBB recipe runs gen_test_hwid.sh on
+# MAINBOARD_PART_NUMBER, whose literal "(...)" breaks the shell. HWID is only
+# cosmetic on a non-ChromeOS board, so a fixed placeholder is fine.
+config GBB_HWID
+	string
+	default "FRAMEWORK SAKURA TEST 0000"
+
+# Enabling VBOOT reserves a 20K vboot work buffer in CAR (RSA accel), which
+# pushes romstage ~2.5K over the 0xc0000 CAR window. The BSP stack (0x88000 =
+# 512K FSP-M + 32K romstage) and the DDR5 SPD buffer (DIMM_MAX*1024) can't be
+# trimmed safely, so reclaim CAR from the pre-RAM console buffer (debug-only;
+# the log still moves to the CBMEM console once DRAM is up).
+config PRERAM_CBMEM_CONSOLE_SIZE
+	default 0x1000
 
 # The PTL SoC default (0xd0000) is sized only for FSP-S preloading. Our UEFI
 # payload is ~1.44 MB, so cbfs_preload() of the payload fails to allocate and
