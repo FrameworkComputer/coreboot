@@ -5,6 +5,7 @@
 #include <crc_byte.h>
 #include <device/dram/ddr3.h>
 #include <device/dram/ddr4.h>
+#include <device/dram/ddr5.h>
 #include <fmap.h>
 #include <spd_cache.h>
 #include <spd.h>
@@ -146,6 +147,25 @@ static bool get_cached_dimm_present(uint8_t *spd_cache, uint8_t idx)
 }
 
 /*
+ * Return the byte offset of the 4-byte serial number within an SPD image,
+ * which differs by DRAM generation. Must match the offset get_spd_sn() reads
+ * the live serial number from.
+ */
+static size_t spd_serial_offset(uint8_t dram_type)
+{
+	switch (dram_type) {
+	case SPD_MEMORY_TYPE_DDR5_SDRAM:
+	case SPD_MEMORY_TYPE_LPDDR5_SDRAM:
+	case SPD_MEMORY_TYPE_LPDDR5X_SDRAM:
+		return DDR5_SPD_SN_OFF;
+	case SPD_MEMORY_TYPE_SDRAM_DDR3:
+		return SPD_DDR3_SERIAL_NUM;
+	default:
+		return DDR4_SPD_SN_OFF;
+	}
+}
+
+/*
  * Use to check if the SODIMM is changed.
  *  spd_cache : it's a valid SPD cache.
  *  blk       : it must include the smbus addresses of SODIMM.
@@ -176,7 +196,9 @@ bool check_if_dimm_changed(u8 *spd_cache, struct spd_block *blk)
 			}
 		} else { /* Dimm is present now. */
 			if (dimm_present_in_cache) {
-				if (memcmp(&sn, spd_cache + SC_SPD_OFFSET(i) + DDR4_SPD_SN_OFF,
+				size_t sn_off = spd_serial_offset(
+					spd_cache[SC_SPD_OFFSET(i) + SPD_MEMORY_TYPE]);
+				if (memcmp(&sn, spd_cache + SC_SPD_OFFSET(i) + sn_off,
 						SPD_SN_LEN) == 0)
 					printk(BIOS_NOTICE, "SPD_CACHE: DIMM%d is the same\n",
 											i);

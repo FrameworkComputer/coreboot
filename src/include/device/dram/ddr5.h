@@ -23,6 +23,8 @@
 #define DDR5_SPD_MODULE_ORG		234
 #define DDR5_SPD_CHANNEL_BUS_WIDTH	235
 #define DDR5_SPD_MIN_LEN		236
+/* Module serial number (4 bytes), in the module manufacturing data block */
+#define DDR5_SPD_SN_OFF			517
 
 enum spd_dimm_type_ddr5 {
 	SPD_DDR5_DIMM_TYPE_RDIMM = 0x01,

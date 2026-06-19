@@ -3,11 +3,15 @@
 #include <console/console.h>
 #include <device/dram/ddr3.h>
 #include <device/dram/ddr4.h>
+#include <device/dram/ddr5.h>
 #include <spd.h>
 #include <spd_bin.h>
 #include <device/smbus_def.h>
 #include <device/smbus_host.h>
 #include "smbuslib.h"
+
+_Static_assert(!CONFIG(DRAM_SUPPORT_DDR5) || CONFIG_DIMM_SPD_SIZE >= SPD_SIZE_MAX_DDR5,
+	"DRAM_SUPPORT_DDR5 requires DIMM_SPD_SIZE >= 1024 (SPD_SIZE_MAX_DDR5)");
 
 static void spd_read(u8 *spd, u8 addr)
 {
@@ -151,7 +155,8 @@ void get_spd_smbus(struct spd_block *blk)
 }
 
 /*
- * get_spd_sn returns the SODIMM serial number. It only supports DDR3 and DDR4.
+ * get_spd_sn returns the SODIMM serial number. It supports DDR3, DDR4 and
+ * DDR5/LPDDR5(X) (the latter read through the SPD5 hub).
  *  return CB_SUCCESS, sn is the serial number and sn=0xffffffff if the dimm is not present.
  *  return CB_ERR, if dram_type is not supported or addr is a zero.
  */
@@ -180,8 +185,24 @@ enum cb_err get_spd_sn(u8 addr, u32 *sn)
 
 	dram_type = smbus_ret & 0xff;
 
+	/*
+	 * DDR5/LPDDR5(X) expose their SPD through an SPD5 hub: the module
+	 * serial number lives at byte 517 (not the DDR4 offset), and the hub
+	 * remaps SPD memory behind the SPD_HUB_MEMREG (0x80|offset) window with
+	 * MR11 paging. dram_type read above is not reliable for a hub, so detect
+	 * it directly like get_spd() does. SN byte 517 falls in page 4 and the
+	 * 4-byte field does not cross a 128-byte page boundary.
+	 */
+	if (CONFIG(DRAM_SUPPORT_DDR5) && is_spd5_hub(addr)) {
+		switch_page(addr, DDR5_SPD_SN_OFF / MAX_SPD_PAGE_SIZE_SPD5);
+
+		for (i = 0; i < SPD_SN_LEN; i++)
+			*((u8 *)sn + i) = smbus_read_byte(addr,
+				SPD_HUB_MEMREG((DDR5_SPD_SN_OFF + i) % MAX_SPD_PAGE_SIZE_SPD5));
+
+		reset_page_spd5(addr);
 	/* Check if module is DDR4, DDR4 spd is 512 byte. */
-	if (dram_type == SPD_MEMORY_TYPE_DDR4_SDRAM && CONFIG_DIMM_SPD_SIZE > SPD_SIZE_MAX_DDR3) {
+	} else if (dram_type == SPD_MEMORY_TYPE_DDR4_SDRAM && CONFIG_DIMM_SPD_SIZE > SPD_SIZE_MAX_DDR3) {
 		/* Switch to page 1 */
 		spd_write_byte(SPD_PAGE_1, 0, 0);
 
