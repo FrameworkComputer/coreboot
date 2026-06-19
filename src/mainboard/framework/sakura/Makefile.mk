@@ -12,5 +12,6 @@ ramstage-y += fadt.c
 ramstage-y += gpio.c
 ramstage-y += hda_verb.c
 ramstage-y += ramstage.c
+ramstage-y += smbios.c
 
 smm-$(CONFIG_HAVE_SMI_HANDLER) += smihandler.c
