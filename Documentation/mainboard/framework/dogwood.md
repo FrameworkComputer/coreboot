@@ -174,18 +174,27 @@ of coreboot at Framework.
 
 Always 8 soldered down chips of each.
 There is no SPD, so memory is configured GPIOs with 10k pullup/down to
-1.8ALW_APU or to GND. SPD is stored in APCB.
+1.8ALW_APU or to GND. SPD is stored in APCB configuration binary exctracted from vendor BIOS.
 APCB contains the memory strap GPIOs, so they do not need to be read by coreboot.
 
-| Vendor   | Schematic Partnum  | Size  | ID2 | ID1 | ID0 |
-|----------|--------------------|-------|-----|-----|-----|
-| Samsung  | K3KL8L80DM-MGCU    |  4GB  | 0   | 0   | 0   |
-| Samsung  | K3KL9L90DM-MGCU    |  8GB  | 0   | 0   | 1   |
-| Samsung  | K3KLALA0DM-MGCU    | 16GB  | 0   | 1   | 0   |
-| SK Hynix | H58G56CK8BX146     |  4GB  | 0   | 1   | 1   |
-| SK Hynix | H58G56CK8BX146     |  8GB  | 1   | 0   | 0   |
-| SK Hynix | H58G56CK8BX146     | 16GB  | 1   | 0   | 1   |
-| Micron   | MT62F4G32D8DV-0231 | 16GB  | 1   | 1   | 0   |
+| Vendor   | Schematic Partnum  | APCB Partnum        | Size  | ID2 | ID1 | ID0 |
+|----------|--------------------|---------------------|-------|-----|-----|-----|
+| Samsung  | K3KL8L80DM-MGCU    | Same                |  4GB  | 0   | 0   | 0   |
+| Samsung  | K3KL9L90DM-MGCU    | Same                |  8GB  | 0   | 0   | 1   |
+| Samsung  | K3KLALA0DM-MGCU    | K3KLALA0EM-MGCV     | 16GB  | 0   | 1   | 0   |
+| SK Hynix | H58G56CK8BX146     | H58G56CK8BX146N     |  4GB  | 0   | 1   | 1   |
+| SK Hynix | H58G56CK8BX146     | H58G66CK8BX147N     |  8GB  | 1   | 0   | 0   |
+| SK Hynix | H58G56CK8BX146     | H58G78CK8BX185N     | 16GB  | 1   | 0   | 1   |
+| Micron   | MT62F4G32D8DV-0231 | MT62F4G32D8DV-023   | 16GB  | 1   | 1   | 0   |
+
+The APCB also contains validated configs that are **not** wired to a strap in
+the table above:
+
+| Vendor | APCB Partnum        | Size | Note                         |
+|--------|---------------------|------|------------------------------|
+| Micron | MT62F1G32D2DS-023   |  4GB | no matching strap row        |
+| Micron | MT62F2G32D4DS-023   |  8GB | no matching strap row        |
+| Micron | MT62F4G32D8DV-020   | 16GB | alternate revision of `-023` |
 
 ### Build
 
