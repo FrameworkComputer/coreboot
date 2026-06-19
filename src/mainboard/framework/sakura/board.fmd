@@ -4,6 +4,10 @@ FLASH 32M {
 	SI_DEVICEEXP2 6240K
 	SI_BIOS@16M 16M {
 		RW_MRC_CACHE 64K
+		# Caches the LPCAMM2 SPD so warm/subsequent boots skip the slow
+		# by-word SMBus read (~3.7s in romstage). Size = DIMM_MAX(16) *
+		# DIMM_SPD_SIZE(1024) + CRC, rounded up to a 4K-aligned 20K.
+		RW_SPD_CACHE(PRESERVE) 20K
 		SMMSTORE(PRESERVE) 256K
 		WP_RO {
 			FMAP 4K
