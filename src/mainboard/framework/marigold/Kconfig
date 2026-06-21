@@ -38,6 +38,9 @@ config BOARD_FRAMEWORK_MARIGOLD
 
 if BOARD_FRAMEWORK_MARIGOLD_COMMON
 
+config FRAMEWORK_EC_PD_CHIP_COUNT
+	default 2
+
 config FMDFILE
 	default "src/mainboard/\$(CONFIG_MAINBOARD_DIR)/board.fmd"
 

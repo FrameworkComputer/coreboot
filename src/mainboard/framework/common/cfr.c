@@ -4,9 +4,13 @@
 #include <console/cfr.h>
 #include <console/console.h>
 #include <drivers/option/cfr_frontend.h>
+#include <ec/google/chromeec/ec.h>
 #include <mainboard/framework/common/board_host_command.h>
 #include <mainboard/framework/common/device_switches.h>
 #include <mainboard/framework/common/ec.h>
+#include <stdio.h>
+#include <string.h>
+#include <version.h>
 
 static const struct sm_object ps2_emulation = SM_DECLARE_BOOL({
 	.opt_name	= PS2_EMULATION_OPTION_NAME,
@@ -236,14 +240,159 @@ static struct sm_obj_form ec = {
 	},
 };
 
+/*
+ * Read-only version strings shown in the setup menu, populated from the EC at
+ * table-generation time. The buffers must stay alive until the CFR table has
+ * been serialized, so they are static.
+ */
+static int ec_query(uint16_t code, uint8_t version, void *out, size_t out_size)
+{
+	struct chromeec_command cmd = {
+		.cmd_code	= code,
+		.cmd_version	= version,
+		.cmd_data_in	= NULL,
+		.cmd_size_in	= 0,
+		.cmd_data_out	= out,
+		.cmd_size_out	= out_size,
+		.cmd_dev_index	= 0,
+	};
+
+	return google_chromeec_command(&cmd);
+}
+
+static void update_ec_version(struct sm_object *new)
+{
+	static char buf[sizeof(((struct ec_response_get_custom_version *)0)->simple_version) + 1];
+	struct ec_response_get_custom_version r;
+
+	if (ec_query(EC_CMD_GET_SIMPLE_VERSION, 0, &r, sizeof(r)) < 0) {
+		new->sm_varchar.default_value = "Unknown";
+		return;
+	}
+
+	/* simple_version is not guaranteed to be NUL-terminated */
+	memcpy(buf, r.simple_version, sizeof(r.simple_version));
+	buf[sizeof(r.simple_version)] = '\0';
+	new->sm_varchar.default_value = buf;
+}
+
+static const struct sm_object ec_version = SM_DECLARE_VARCHAR({
+	.flags		= CFR_OPTFLAG_READONLY | CFR_OPTFLAG_VOLATILE,
+	.opt_name	= "ec_version",
+	.ui_name	= "EC Version",
+}, WITH_CALLBACK(update_ec_version));
+
+static const struct sm_object coreboot_ver = SM_DECLARE_VARCHAR({
+	.flags		= CFR_OPTFLAG_READONLY | CFR_OPTFLAG_VOLATILE,
+	.opt_name	= "coreboot_version",
+	.ui_name	= "coreboot Version",
+	.default_value	= coreboot_version,
+});
+
+/*
+ * The PD controller version fields are built at runtime because the number of
+ * controllers is board specific (CONFIG_FRAMEWORK_EC_PD_CHIP_COUNT). All
+ * buffers must outlive cfr_write_setup_menu(), hence they are static.
+ */
+#define PD_CHIP_COUNT	CONFIG_FRAMEWORK_EC_PD_CHIP_COUNT
+
+static struct sm_object pd_version_objs[PD_CHIP_COUNT];
+static char pd_version_value[PD_CHIP_COUNT][16];
+static char pd_version_name[PD_CHIP_COUNT][sizeof("PD 255 Version")];
+static char pd_version_opt[PD_CHIP_COUNT][sizeof("pd_version_255")];
+
+/* coreboot version + EC version + PD_CHIP_COUNT fields + NULL terminator */
+static const struct sm_object *versions_obj_list[PD_CHIP_COUNT + 3];
+
+static struct sm_obj_form versions = {
+	.ui_name = "Firmware Versions",
+};
+
+/*
+ * Format a Cypress CCGx PD controller version. The application firmware
+ * version (and its two-character application type) is the user-facing one.
+ */
+static const char *format_pd_version(char *buf, size_t size, const uint8_t *v)
+{
+	/* All-zero means no PD controller is present at this index */
+	if (!v[4] && !v[5] && !v[6] && !v[7]) {
+		strncpy(buf, "Not present", size);
+		return buf;
+	}
+
+	snprintf(buf, size, "%x.%x.%x",
+		 (v[7] & 0xf0) >> 4, v[7] & 0x0f, v[6]);
+	return buf;
+}
+
+static void build_versions_form(void)
+{
+	struct ec_response_read_pd_version_v1_4x r1;
+	struct ec_response_read_pd_version_v0 r0;
+	const uint8_t (*pd_versions)[8] = NULL;
+	unsigned int pd_count = 0;
+	size_t n = 0;
+
+	/*
+	 * Newer EC firmware supports READ_PD_VERSION v1 (a controller count
+	 * plus that many 8-byte version blobs); older firmware only has v0
+	 * (exactly two fixed blobs). Try v1 first and fall back to v0, like
+	 * framework_tool does.
+	 */
+	if (ec_query(EC_CMD_READ_PD_VERSION, 1, &r1, sizeof(r1)) >= 0) {
+		pd_versions = r1.pd_versions;
+		pd_count = MIN(r1.pd_chip_count, ARRAY_SIZE(r1.pd_versions));
+	} else if (ec_query(EC_CMD_READ_PD_VERSION, 0, &r0, sizeof(r0)) >= 0) {
+		/* The two blobs are contiguous, so treat them as an array. */
+		pd_versions = (const uint8_t (*)[8])&r0;
+		pd_count = 2;
+	}
+	printk(BIOS_DEBUG, "CFR: EC reported %u PD controller version(s)\n", pd_count);
+
+	versions_obj_list[n++] = &coreboot_ver;
+	versions_obj_list[n++] = &ec_version;
+
+	for (unsigned int i = 0; i < PD_CHIP_COUNT; i++) {
+		const char *value;
+
+		if (pd_versions && i < pd_count)
+			value = format_pd_version(pd_version_value[i],
+						  sizeof(pd_version_value[i]),
+						  pd_versions[i]);
+		else
+			value = "Unknown";
+
+		snprintf(pd_version_name[i], sizeof(pd_version_name[i]), "PD %u Version", i + 1);
+		snprintf(pd_version_opt[i], sizeof(pd_version_opt[i]), "pd_version_%u", i);
+
+		/*
+		 * struct sm_object has a const member, so it cannot be
+		 * assigned directly; copy from a compound literal instead.
+		 */
+		const struct sm_object obj = SM_DECLARE_VARCHAR({
+			.flags		= CFR_OPTFLAG_READONLY | CFR_OPTFLAG_VOLATILE,
+			.opt_name	= pd_version_opt[i],
+			.ui_name	= pd_version_name[i],
+			.default_value	= value,
+		});
+		memcpy(&pd_version_objs[i], &obj, sizeof(obj));
+		versions_obj_list[n++] = &pd_version_objs[i];
+	}
+
+	versions_obj_list[n] = NULL;
+	versions.obj_list = versions_obj_list;
+}
+
 static struct sm_obj_form *sm_root[] = {
 	&debug,
 	&devices,
 	&ec,
+	&versions,
 	NULL
 };
 
 void mb_cfr_setup_menu(struct lb_cfr *cfr_root)
 {
+	build_versions_form();
 	cfr_write_setup_menu(cfr_root, sm_root);
 }
