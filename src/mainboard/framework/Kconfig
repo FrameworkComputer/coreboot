@@ -35,6 +35,14 @@ config FRAMEWORK_INPUT_DECK
 	  Selected by boards that have detectable input deck, to enable the Input
 	  Deck Mode CFR option.
 
+config FRAMEWORK_EC_PD_CHIP_COUNT
+	int
+	depends on EC_GOOGLE_CHROMEEC
+	help
+	  Number of USB-C Power Delivery controllers on the board. Used to size
+	  the per-controller PD firmware version readouts in the CFR setup menu.
+	  Each board sets its own value.
+
 # Keyboard matrix positions (row/col) of the keys remapped by the key remap CFR
 # options (swap Ctrl/Fn, Copilot key). The defaults match the Framework Laptop
 # 13 keyboard; boards with a different matrix override these.
