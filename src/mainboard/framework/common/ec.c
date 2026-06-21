@@ -292,6 +292,7 @@ void mainboard_ec_init(void)
 	framework_battery_disconnect();
 	framework_set_swap_ctrl_fn();
 	framework_set_copilot_key();
+	framework_log_chassis_intrusion();
 }
 
 static void framework_ec_signal_bios_complete(void *unused)
