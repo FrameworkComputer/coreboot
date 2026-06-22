@@ -94,4 +94,17 @@ config FRAMEWORK_PD2_FW_FILE
 	  Path to the PD2 controller firmware. Must fit the PD2 FMAP region
 	  (64K). Leave empty to not touch the PD2 region.
 
+# The Embedded Controller firmware lives in its own Intel flash descriptor
+# region (SI_EC, see board.fmd), outside the BIOS region coreboot normally
+# flashes. Setting this embeds the blob into SI_EC of the built image; left
+# empty the region stays empty (0xff). Note: flashing it requires writing the
+# EC region explicitly (e.g. flashrom with a layout), since coreboot's image
+# carries no Intel Firmware Descriptor.
+config FRAMEWORK_EC_FW_FILE
+	string "EC firmware blob"
+	default ""
+	help
+	  Path to the Embedded Controller firmware. Must fit the SI_EC FMAP
+	  region (512K). Leave empty to not touch the EC region.
+
 endif
