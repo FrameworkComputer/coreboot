@@ -1,6 +1,12 @@
 FLASH 32M {
 	SI_DESC 16K
-	SI_ME 10128K
+	# Embedded Controller firmware: Intel flash descriptor region 8 ("EC"),
+	# at 0x4000, 512K (ec.bin is exactly 512K). This lives *outside* the BIOS
+	# region. coreboot does not currently build or flash it (would require a
+	# full descriptor-mode build); the vendor flashes the EC separately
+	# (DISCRETE_EC_FLASH). Reserved here so the layout is complete.
+	SI_EC(PRESERVE) 512K
+	SI_ME 9616K
 	SI_DEVICEEXP2 6240K
 	SI_BIOS@16M 16M {
 		# PD Firmware for use in PD FW updates
