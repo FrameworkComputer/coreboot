@@ -3,6 +3,9 @@
 chip soc/intel/alderlake
 	register "s0ix_enable" = "true"
 
+	# Disable C1 state auto-demotion
+	register "disable_c1_state_auto_demotion" = "true"
+
 	# Enable Enhanced Intel SpeedStep
 	register "eist_enable" = "true"
 
