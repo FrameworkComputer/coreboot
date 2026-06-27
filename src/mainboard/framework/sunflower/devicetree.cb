@@ -16,6 +16,13 @@ chip soc/intel/alderlake
 
 	register "s0ix_enable" = "true"
 
+	# Disable package C state demotion on Raptorlake as a W/A for S0ix issues
+	# seen on J0 and Q0 SKUs (sunflower is Q0)
+	register "disable_package_c_state_demotion" = "true"
+
+	# Disable C1 state auto-demotion
+	register "disable_c1_state_auto_demotion" = "true"
+
 	# Enable Enhanced Intel SpeedStep
 	register "eist_enable" = "true"
 
