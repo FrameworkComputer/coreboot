@@ -8,6 +8,7 @@
 #include <mainboard/framework/common/board_host_command.h>
 #include <mainboard/framework/common/ec.h>
 #include <option.h>
+#include <string.h>
 
 /* Send a Framework EC host command (version 0) that does not expect a response */
 static int framework_ec_send(uint16_t cmd_code, const void *data, size_t size)
@@ -105,6 +106,79 @@ static void framework_set_stylus_protocol(void)
 
 	if (framework_ec_send(EC_CMD_GPIO_SET, &params, sizeof(params)))
 		printk(BIOS_ERR, "Failed to set stylus protocol GPIO\n");
+}
+
+/* Write keyboard matrix (row, col) -> scancode entries to the EC. */
+static void framework_remap_keys(const struct keyboard_matrix_map *maps, size_t count)
+{
+	struct ec_params_update_keyboard_matrix params = {
+		.num_items	= count,
+		.write		= 1,
+	};
+	/* The EC always returns a full-size response, so provide a buffer. */
+	struct ec_params_update_keyboard_matrix resp;
+	struct chromeec_command cmd = {
+		.cmd_code	= EC_CMD_UPDATE_KEYBOARD_MATRIX,
+		.cmd_version	= 0,
+		.cmd_data_in	= &params,
+		.cmd_size_in	= sizeof(params),
+		.cmd_data_out	= &resp,
+		.cmd_size_out	= sizeof(resp),
+		.cmd_dev_index	= 0,
+	};
+
+	if (count > ARRAY_SIZE(params.scan_update))
+		return;
+
+	memcpy(params.scan_update, maps, count * sizeof(*maps));
+
+	if (google_chromeec_command(&cmd))
+		printk(BIOS_ERR, "Failed to update keyboard matrix\n");
+}
+
+static void framework_set_swap_ctrl_fn(void)
+{
+	const unsigned int ctrl_scancode = get_uint_option(KBD_SWAP_CTRL_FN_OPTION_NAME,
+							   KBD_REMAP_NO_CHANGE);
+
+	if (ctrl_scancode == KBD_REMAP_NO_CHANGE)
+		return;	/* Leave the EC matrix untouched. */
+
+	/* The Fn key gets whichever of the two codes the Ctrl key didn't. */
+	const uint16_t fn_scancode = (ctrl_scancode == KB_SCANSET_LEFT_CTRL)
+				   ? KB_SCANSET_FN : KB_SCANSET_LEFT_CTRL;
+
+	const struct keyboard_matrix_map maps[] = {
+		{
+			.row	= CONFIG_FRAMEWORK_KBD_LEFT_CTRL_ROW,
+			.col	= CONFIG_FRAMEWORK_KBD_LEFT_CTRL_COL,
+			.scanset = ctrl_scancode,
+		},
+		{
+			.row	= CONFIG_FRAMEWORK_KBD_FN_ROW,
+			.col	= CONFIG_FRAMEWORK_KBD_FN_COL,
+			.scanset = fn_scancode,
+		},
+	};
+
+	framework_remap_keys(maps, ARRAY_SIZE(maps));
+}
+
+static void framework_set_copilot_key(void)
+{
+	const unsigned int scancode = get_uint_option(KBD_COPILOT_OPTION_NAME,
+						      KBD_REMAP_NO_CHANGE);
+
+	if (scancode == KBD_REMAP_NO_CHANGE)
+		return;	/* Leave the EC matrix untouched. */
+
+	const struct keyboard_matrix_map map = {
+		.row	= CONFIG_FRAMEWORK_KBD_RIGHT_CTRL_ROW,
+		.col	= CONFIG_FRAMEWORK_KBD_RIGHT_CTRL_COL,
+		.scanset = scancode,
+	};
+
+	framework_remap_keys(&map, 1);
 }
 
 static void framework_battery_disconnect(void)
@@ -216,6 +290,8 @@ void mainboard_ec_init(void)
 		framework_set_input_deck_mode();
 	framework_log_chassis_intrusion();
 	framework_battery_disconnect();
+	framework_set_swap_ctrl_fn();
+	framework_set_copilot_key();
 }
 
 static void framework_ec_signal_bios_complete(void *unused)

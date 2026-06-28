@@ -35,4 +35,35 @@ config FRAMEWORK_INPUT_DECK
 	  Selected by boards that have detectable input deck, to enable the Input
 	  Deck Mode CFR option.
 
+# Keyboard matrix positions (row/col) of the keys remapped by the key remap CFR
+# options (swap Ctrl/Fn, Copilot key). The defaults match the Framework Laptop
+# 13 keyboard; boards with a different matrix override these.
+if EC_GOOGLE_CHROMEEC
+
+config FRAMEWORK_KBD_FN_ROW
+	int
+	default 2
+
+config FRAMEWORK_KBD_FN_COL
+	int
+	default 2
+
+config FRAMEWORK_KBD_LEFT_CTRL_ROW
+	int
+	default 1
+
+config FRAMEWORK_KBD_LEFT_CTRL_COL
+	int
+	default 12
+
+config FRAMEWORK_KBD_RIGHT_CTRL_ROW
+	int
+	default 0
+
+config FRAMEWORK_KBD_RIGHT_CTRL_COL
+	int
+	default 12
+
+endif # EC_GOOGLE_CHROMEEC
+
 endif # VENDOR_FRAMEWORK

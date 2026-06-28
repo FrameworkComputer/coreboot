@@ -131,4 +131,21 @@
  */
 #define BATTERY_DISCONNECT_OPTION_NAME		"battery_disconnect"
 
+/*
+ * CFR options for remapping keys via EC_CMD_UPDATE_KEYBOARD_MATRIX.
+ *
+ * Each stored value is the Set 2 scancode (enum keyboard_matrix_scanset in
+ * fwk_ec_commands.h) to write to the affected matrix position; the matrix
+ * positions differ per board and come from Kconfig (CONFIG_FRAMEWORK_KBD_*).
+ * KBD_REMAP_NO_CHANGE leaves the EC matrix untouched, so coreboot does not
+ * override a layout the EC (or the user via framework_tool) already configured.
+ *
+ * kbd_swap_ctrl_fn stores what the physical left Ctrl key should emit (left Ctrl
+ * = normal, Fn = swapped); coreboot writes the complementary code to the Fn key.
+ * kbd_copilot stores what the right Ctrl key should emit (right Ctrl or Copilot).
+ */
+#define KBD_SWAP_CTRL_FN_OPTION_NAME	"kbd_swap_ctrl_fn"
+#define KBD_COPILOT_OPTION_NAME		"kbd_copilot"
+#define KBD_REMAP_NO_CHANGE		0x10000	/* out of scancode range on purpose */
+
 #endif /* MAINBOARD_EC_H */

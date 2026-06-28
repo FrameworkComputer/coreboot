@@ -108,6 +108,43 @@ static const struct sm_object stylus_protocol = SM_DECLARE_ENUM({
 });
 #endif
 
+static const struct sm_enum_value kbd_swap_ctrl_fn_values[] = {
+	{ "Do nothing",	KBD_REMAP_NO_CHANGE },
+	{ "Normal",	KB_SCANSET_LEFT_CTRL },
+	{ "Swapped",	KB_SCANSET_FN },
+	SM_ENUM_VALUE_END,
+};
+
+static const struct sm_object kbd_swap_ctrl_fn = SM_DECLARE_ENUM({
+	.opt_name	= KBD_SWAP_CTRL_FN_OPTION_NAME,
+	.ui_name	= "Swap Left Ctrl and Fn",
+	.ui_helptext	= "Swap the left Ctrl and Fn keys.\n"
+			  "\"Swapped\" makes the bottom-left key act as Fn and Fn act "
+			  "as left Ctrl.\n"
+			  "\"Normal\" restores the default layout.\n"
+			  "\"Do nothing\" leaves the key mapping as configured in the EC.",
+	.default_value	= KBD_REMAP_NO_CHANGE,
+	.values		= kbd_swap_ctrl_fn_values,
+});
+
+static const struct sm_enum_value kbd_copilot_values[] = {
+	{ "Do nothing",		KBD_REMAP_NO_CHANGE },
+	{ "Right Ctrl",		KB_SCANSET_RIGHT_CTRL },
+	{ "Copilot key",	KB_SCANSET_COPILOT },
+	SM_ENUM_VALUE_END,
+};
+
+static const struct sm_object kbd_copilot = SM_DECLARE_ENUM({
+	.opt_name	= KBD_COPILOT_OPTION_NAME,
+	.ui_name	= "Copilot Key",
+	.ui_helptext	= "Configure the bottom-right key.\n"
+			  "\"Right Ctrl\" makes it a normal right Ctrl key.\n"
+			  "\"Copilot key\" makes it act as the Windows Copilot key.\n"
+			  "\"Do nothing\" leaves the key mapping as configured in the EC.",
+	.default_value	= KBD_REMAP_NO_CHANGE,
+	.values		= kbd_copilot_values,
+});
+
 static const struct sm_object battery_disconnect = SM_DECLARE_BOOL({
 	.opt_name	= BATTERY_DISCONNECT_OPTION_NAME,
 	.ui_name	= "Disconnect Battery",
@@ -132,6 +169,8 @@ static struct sm_obj_form ec = {
 		&stylus_protocol,
 #endif
 		&battery_disconnect,
+		&kbd_swap_ctrl_fn,
+		&kbd_copilot,
 		NULL
 	},
 };
