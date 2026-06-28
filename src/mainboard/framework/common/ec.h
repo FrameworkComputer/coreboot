@@ -121,4 +121,14 @@
 #define INPUT_DECK_MODE_FORCE_ON	0x02
 #define INPUT_DECK_MODE_FORCE_OFF	0x04
 
+/*
+ * CFR one-shot trigger to disconnect (cut off) the battery, a.k.a. ship mode.
+ *
+ * Unlike the other options this is not a persistent setting: when set, coreboot
+ * clears it again on the next boot before sending EC_CMD_BATTERY_CUT_OFF, so the
+ * battery is disconnected exactly once per request. The cutoff powers the system
+ * off and it stays off until a charger is connected.
+ */
+#define BATTERY_DISCONNECT_OPTION_NAME		"battery_disconnect"
+
 #endif /* MAINBOARD_EC_H */

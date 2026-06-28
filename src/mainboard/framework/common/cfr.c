@@ -108,6 +108,16 @@ static const struct sm_object stylus_protocol = SM_DECLARE_ENUM({
 });
 #endif
 
+static const struct sm_object battery_disconnect = SM_DECLARE_BOOL({
+	.opt_name	= BATTERY_DISCONNECT_OPTION_NAME,
+	.ui_name	= "Disconnect Battery",
+	.ui_helptext	= "Disconnect the battery (ship mode) on the next boot. The "
+			  "system powers off and stays off until a charger is "
+			  "connected. This is a one-shot action that resets itself "
+			  "automatically, so it does not stay enabled.",
+	.default_value	= false,
+});
+
 static struct sm_obj_form ec = {
 	.ui_name = "Embedded Controller",
 	.obj_list = (const struct sm_object *[]) {
@@ -121,6 +131,7 @@ static struct sm_obj_form ec = {
 #if CONFIG(FRAMEWORK_TOUCHSCREEN_STYLUS)
 		&stylus_protocol,
 #endif
+		&battery_disconnect,
 		NULL
 	},
 };

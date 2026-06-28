@@ -107,6 +107,32 @@ static void framework_set_stylus_protocol(void)
 		printk(BIOS_ERR, "Failed to set stylus protocol GPIO\n");
 }
 
+static void framework_battery_disconnect(void)
+{
+	const struct ec_params_battery_cutoff params = {
+		.flags = 0,	/* Cut off immediately. */
+	};
+
+	if (!get_uint_option(BATTERY_DISCONNECT_OPTION_NAME, 0))
+		return;
+
+	/*
+	 * Clear the one-shot trigger before acting on it. The cutoff powers the
+	 * system off, so if the flag survived we would disconnect again on the
+	 * next charger-powered boot and never reach the OS. If we cannot clear
+	 * it, don't disconnect, to avoid that boot loop.
+	 */
+	if (set_uint_option(BATTERY_DISCONNECT_OPTION_NAME, 0) != CB_SUCCESS) {
+		printk(BIOS_ERR, "Failed to clear battery disconnect trigger; "
+				 "not disconnecting to avoid a boot loop\n");
+		return;
+	}
+
+	printk(BIOS_INFO, "Disconnecting battery (ship mode) as requested\n");
+	if (framework_ec_send(EC_CMD_BATTERY_CUT_OFF, &params, sizeof(params)))
+		printk(BIOS_ERR, "Failed to disconnect battery\n");
+}
+
 static void framework_set_battery_charge_limit(void)
 {
 	const unsigned int limit = get_uint_option(BATTERY_CHARGE_LIMIT_OPTION_NAME,
@@ -189,6 +215,7 @@ void mainboard_ec_init(void)
 	if (CONFIG(FRAMEWORK_INPUT_DECK))
 		framework_set_input_deck_mode();
 	framework_log_chassis_intrusion();
+	framework_battery_disconnect();
 }
 
 static void framework_ec_signal_bios_complete(void *unused)
