@@ -228,6 +228,19 @@ struct ec_params_update_keyboard_matrix {
 	struct keyboard_matrix_map scan_update[32];
 } __ec_align1;
 
+/*
+ * Set 2 make codes for the keys remapped via EC_CMD_UPDATE_KEYBOARD_MATRIX
+ * (see the EC's keyboard_8042_sharedlib.h). KB_SCANSET_COPILOT is a "fake" code
+ * the EC intercepts to emit the Windows Copilot key combination (Left GUI +
+ * Left Shift + F23); it is never reported to the host as-is.
+ */
+enum keyboard_matrix_scanset {
+	KB_SCANSET_LEFT_CTRL	= 0x0014,
+	KB_SCANSET_RIGHT_CTRL	= 0xe014,
+	KB_SCANSET_FN		= 0x00ff,
+	KB_SCANSET_COPILOT	= 0xffff,
+};
+
 /*****************************************************************************/
 /*
  * This command uses to check the vpro status.
