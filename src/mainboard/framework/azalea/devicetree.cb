@@ -255,6 +255,7 @@ chip soc/amd/phoenix
 				end
 			end
 			device ref acp on end # Audio Processor (ACP)
+			device ref hda on end # HD Audio Controller
 		end
 		device ref gpp_bridge_c on  # Internal GPP Bridge 2 to Bus C
 			device ref usb4_xhci_0 on
