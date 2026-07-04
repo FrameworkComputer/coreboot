@@ -1,7 +1,29 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 
+#include <mainboard/framework/common/device_switches.h>
+#include <option.h>
 #include <soc/meminit.h>
 #include <soc/romstage.h>
+#include <soc/tcss.h>
+
+/*
+ * Disable the whole TCSS (USB-C) block in FSP-M when the "USB-C Ports" CFR
+ * option is turned off. On Panther Lake the per-port capability policy
+ * (TcssPortN) is the master port switch and TCSS_TYPE_C_PORT_DISABLE turns a
+ * port off entirely; the FSP-S port enables and OS-visible devices are handled
+ * in mb_devtree_update() (see devtree.c).
+ */
+static void mainboard_disable_typec(FSPM_UPD *mupd)
+{
+	if (get_uint_option(TYPEC_OPTION_NAME, 1) != 0)
+		return;
+
+	mupd->FspmConfig.TcssXhciEn = 0;
+	mupd->FspmConfig.TcssPort0 = TCSS_TYPE_C_PORT_DISABLE;
+	mupd->FspmConfig.TcssPort1 = TCSS_TYPE_C_PORT_DISABLE;
+	mupd->FspmConfig.TcssPort2 = TCSS_TYPE_C_PORT_DISABLE;
+	mupd->FspmConfig.TcssPort3 = TCSS_TYPE_C_PORT_DISABLE;
+}
 
 /*
  * LPDDR5x LPCAMM2 module, use same config as camm_t3_mem_config on ptl_rvp
@@ -83,4 +105,6 @@ void mainboard_memory_init_params(FSPM_UPD *mupd)
 	const bool half_populated = false;
 
 	memcfg_init(mupd, &board_cfg, &spd_info, half_populated);
+
+	mainboard_disable_typec(mupd);
 }

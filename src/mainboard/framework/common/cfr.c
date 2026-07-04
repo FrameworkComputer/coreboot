@@ -5,6 +5,7 @@
 #include <console/console.h>
 #include <drivers/option/cfr_frontend.h>
 #include <mainboard/framework/common/board_host_command.h>
+#include <mainboard/framework/common/device_switches.h>
 #include <mainboard/framework/common/ec.h>
 
 static const struct sm_object ps2_emulation = SM_DECLARE_BOOL({
@@ -155,6 +156,66 @@ static const struct sm_object battery_disconnect = SM_DECLARE_BOOL({
 	.default_value	= false,
 });
 
+/*
+ * Onboard device on/off switches. The payload writes the selected value to the
+ * option backend (UEFI variable store / SMMSTORE); each board reads it back in
+ * mb_devtree_update() (see the board's devtree.c) and disables the matching
+ * device before FSP-S runs. Boards that lack one of these devices simply do not
+ * act on its option.
+ */
+static const struct sm_object camera = SM_DECLARE_BOOL({
+	.opt_name	= CAMERA_OPTION_NAME,
+	.ui_name	= "Camera",
+	.ui_helptext	= "Enable or disable the internal webcam.",
+	.default_value	= true,
+});
+
+static const struct sm_object bluetooth = SM_DECLARE_BOOL({
+	.opt_name	= BLUETOOTH_OPTION_NAME,
+	.ui_name	= "Bluetooth",
+	.ui_helptext	= "Enable or disable the internal Bluetooth radio.",
+	.default_value	= true,
+});
+
+static const struct sm_object wifi = SM_DECLARE_BOOL({
+	.opt_name	= WIFI_OPTION_NAME,
+	.ui_name	= "Wi-Fi",
+	.ui_helptext	= "Enable or disable the onboard Wi-Fi module in the "
+			  "M.2/E 2230 (WLAN) slot.",
+	.default_value	= true,
+});
+
+static const struct sm_object fingerprint = SM_DECLARE_BOOL({
+	.opt_name	= FINGERPRINT_OPTION_NAME,
+	.ui_name	= "Fingerprint Reader",
+	.ui_helptext	= "Enable or disable the fingerprint reader in the power button.",
+	.default_value	= true,
+});
+
+static const struct sm_object typec = SM_DECLARE_BOOL({
+	.opt_name	= TYPEC_OPTION_NAME,
+	.ui_name	= "USB-C Ports",
+	.ui_helptext	= "Enable or disable all USB-C ports, including USB data, "
+			  "DisplayPort Alt Mode and Thunderbolt/USB4. Charging over "
+			  "USB-C is unaffected and keeps working.\n"
+			  "Disabling turns off external display output through the "
+			  "USB-C ports and blocks Thunderbolt/USB4 (including DMA), "
+			  "which can be useful in high-security environments.",
+	.default_value	= true,
+});
+
+static struct sm_obj_form devices = {
+	.ui_name = "Devices",
+	.obj_list = (const struct sm_object *[]) {
+		&camera,
+		&bluetooth,
+		&wifi,
+		&fingerprint,
+		&typec,
+		NULL
+	},
+};
+
 static struct sm_obj_form ec = {
 	.ui_name = "Embedded Controller",
 	.obj_list = (const struct sm_object *[]) {
@@ -177,6 +238,7 @@ static struct sm_obj_form ec = {
 
 static struct sm_obj_form *sm_root[] = {
 	&debug,
+	&devices,
 	&ec,
 	NULL
 };
