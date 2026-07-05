@@ -1,16 +1,33 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 
 #include <boot/coreboot_tables.h>
+#include <cbmem.h>
 #include <console/cfr.h>
 #include <console/console.h>
+#include <cpu/cpu.h>
+#include <cpu/x86/name.h>
+#include <device/pci.h>
+#include <device/pci_ops.h>
 #include <drivers/option/cfr_frontend.h>
 #include <ec/google/chromeec/ec.h>
 #include <mainboard/framework/common/board_host_command.h>
 #include <mainboard/framework/common/device_switches.h>
 #include <mainboard/framework/common/ec.h>
+#include <memory_info.h>
+#include <smbios.h>
 #include <stdio.h>
 #include <string.h>
 #include <version.h>
+
+#if CONFIG(PLATFORM_USES_FSP2_0)
+#include <fsp/util.h>
+#endif
+#if CONFIG(SOC_INTEL_COMMON_BLOCK_CSE)
+#include <intelblocks/cse.h>
+#endif
+#if CONFIG(SUPPORT_CPU_UCODE_IN_CBFS)
+#include <cpu/intel/microcode.h>
+#endif
 
 static const struct sm_object ps2_emulation = SM_DECLARE_BOOL({
 	.opt_name	= PS2_EMULATION_OPTION_NAME,
@@ -308,6 +325,76 @@ static const struct sm_object coreboot_ver = SM_DECLARE_VARCHAR({
 	.default_value	= coreboot_version,
 });
 
+#if CONFIG(PLATFORM_USES_FSP2_0)
+static void update_fsp_version(struct sm_object *new)
+{
+	static char buf[FSP_VER_LEN];
+
+	fsp_get_version(buf);
+	new->sm_varchar.default_value = buf;
+}
+
+static const struct sm_object fsp_version = SM_DECLARE_VARCHAR({
+	.flags		= CFR_OPTFLAG_READONLY | CFR_OPTFLAG_VOLATILE,
+	.opt_name	= "fsp_version",
+	.ui_name	= "FSP Version",
+}, WITH_CALLBACK(update_fsp_version));
+#endif
+
+#if CONFIG(SOC_INTEL_COMMON_BLOCK_CSE)
+static const char *me_sku_name(void)
+{
+	switch (cse_get_fw_sku()) {
+	case ME_HFS3_FW_SKU_CONSUMER:
+		return "Consumer";
+	case ME_HFS3_FW_SKU_CORPORATE:
+		return "Corporate";
+	case ME_HFS3_FW_SKU_LITE:
+		return "Lite";
+	default:
+		return "Unknown SKU";
+	}
+}
+
+static void update_me_version(struct sm_object *new)
+{
+	static char buf[48];
+	struct me_fw_ver_resp resp = {0};
+
+	if (cse_get_me_fw_version(&resp) != CB_SUCCESS) {
+		new->sm_varchar.default_value = "Unknown";
+		return;
+	}
+
+	snprintf(buf, sizeof(buf), "%u.%u.%u.%u (%s)",
+		 resp.code.major, resp.code.minor, resp.code.hotfix,
+		 resp.code.build, me_sku_name());
+	new->sm_varchar.default_value = buf;
+}
+
+static const struct sm_object me_version = SM_DECLARE_VARCHAR({
+	.flags		= CFR_OPTFLAG_READONLY | CFR_OPTFLAG_VOLATILE,
+	.opt_name	= "me_version",
+	.ui_name	= "ME Version",
+}, WITH_CALLBACK(update_me_version));
+#endif
+
+#if CONFIG(SUPPORT_CPU_UCODE_IN_CBFS)
+static void update_microcode_version(struct sm_object *new)
+{
+	static char buf[sizeof("0x00000000")];
+
+	snprintf(buf, sizeof(buf), "0x%08x", get_current_microcode_rev());
+	new->sm_varchar.default_value = buf;
+}
+
+static const struct sm_object microcode_version = SM_DECLARE_VARCHAR({
+	.flags		= CFR_OPTFLAG_READONLY | CFR_OPTFLAG_VOLATILE,
+	.opt_name	= "microcode_version",
+	.ui_name	= "Microcode Revision",
+}, WITH_CALLBACK(update_microcode_version));
+#endif
+
 /*
  * The PD controller version fields are built at runtime because the number of
  * controllers is board specific (CONFIG_FRAMEWORK_EC_PD_CHIP_COUNT). All
@@ -320,8 +407,11 @@ static char pd_version_value[PD_CHIP_COUNT][16];
 static char pd_version_name[PD_CHIP_COUNT][sizeof("PD 255 Version")];
 static char pd_version_opt[PD_CHIP_COUNT][sizeof("pd_version_255")];
 
-/* coreboot version + EC version + PD_CHIP_COUNT fields + NULL terminator */
-static const struct sm_object *versions_obj_list[PD_CHIP_COUNT + 3];
+/*
+ * coreboot + FSP + ME + microcode + EC versions, PD_CHIP_COUNT fields and the
+ * NULL terminator.
+ */
+static const struct sm_object *versions_obj_list[PD_CHIP_COUNT + 6];
 
 static struct sm_obj_form versions = {
 	.ui_name = "Firmware Versions",
@@ -369,6 +459,15 @@ static void build_versions_form(void)
 	printk(BIOS_DEBUG, "CFR: EC reported %u PD controller version(s)\n", pd_count);
 
 	versions_obj_list[n++] = &coreboot_ver;
+#if CONFIG(PLATFORM_USES_FSP2_0)
+	versions_obj_list[n++] = &fsp_version;
+#endif
+#if CONFIG(SOC_INTEL_COMMON_BLOCK_CSE)
+	versions_obj_list[n++] = &me_version;
+#endif
+#if CONFIG(SUPPORT_CPU_UCODE_IN_CBFS)
+	versions_obj_list[n++] = &microcode_version;
+#endif
 	versions_obj_list[n++] = &ec_version;
 
 	for (unsigned int i = 0; i < PD_CHIP_COUNT; i++) {
@@ -402,10 +501,204 @@ static void build_versions_form(void)
 	versions.obj_list = versions_obj_list;
 }
 
+#if CONFIG(GENERATE_SMBIOS_TABLES)
+static void update_system_serial(struct sm_object *new)
+{
+	new->sm_varchar.default_value = smbios_system_serial_number();
+}
+
+static const struct sm_object system_serial = SM_DECLARE_VARCHAR({
+	.flags		= CFR_OPTFLAG_READONLY | CFR_OPTFLAG_VOLATILE,
+	.opt_name	= "system_serial",
+	.ui_name	= "Serial Number",
+}, WITH_CALLBACK(update_system_serial));
+
+static void update_system_uuid(struct sm_object *new)
+{
+	static char buf[sizeof("00000000-0000-0000-0000-000000000000")];
+	uint8_t uuid[16] = {0};
+	int i;
+
+	smbios_system_set_uuid(uuid);
+
+	for (i = 0; i < ARRAY_SIZE(uuid) && !uuid[i]; i++)
+		;
+	if (i == ARRAY_SIZE(uuid)) {
+		new->sm_varchar.default_value = "Not set";
+		return;
+	}
+
+	/* SMBIOS wire format: the first three fields are little endian */
+	snprintf(buf, sizeof(buf),
+		 "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+		 uuid[3], uuid[2], uuid[1], uuid[0], uuid[5], uuid[4], uuid[7], uuid[6],
+		 uuid[8], uuid[9], uuid[10], uuid[11], uuid[12], uuid[13], uuid[14], uuid[15]);
+	new->sm_varchar.default_value = buf;
+}
+
+static const struct sm_object system_uuid = SM_DECLARE_VARCHAR({
+	.flags		= CFR_OPTFLAG_READONLY | CFR_OPTFLAG_VOLATILE,
+	.opt_name	= "system_uuid",
+	.ui_name	= "System UUID",
+}, WITH_CALLBACK(update_system_uuid));
+#endif
+
+static void update_cpu_name(struct sm_object *new)
+{
+	static char buf[49];
+
+	fill_processor_name(buf);
+	new->sm_varchar.default_value = buf;
+}
+
+static const struct sm_object cpu_name = SM_DECLARE_VARCHAR({
+	.flags		= CFR_OPTFLAG_READONLY | CFR_OPTFLAG_VOLATILE,
+	.opt_name	= "cpu_name",
+	.ui_name	= "CPU",
+}, WITH_CALLBACK(update_cpu_name));
+
+static void update_cpu_id(struct sm_object *new)
+{
+	static char buf[sizeof("0x00000000")];
+
+	snprintf(buf, sizeof(buf), "0x%x", cpu_get_cpuid());
+	new->sm_varchar.default_value = buf;
+}
+
+static const struct sm_object cpu_id = SM_DECLARE_VARCHAR({
+	.flags		= CFR_OPTFLAG_READONLY | CFR_OPTFLAG_VOLATILE,
+	.opt_name	= "cpu_id",
+	.ui_name	= "CPU ID",
+}, WITH_CALLBACK(update_cpu_id));
+
+#if CONFIG(SOC_INTEL_COMMON)
+static void update_pch_info(struct sm_object *new)
+{
+	static char buf[sizeof("ID 0x0000, Rev 0x00")];
+	const struct device *espi = pcidev_on_root(0x1f, 0);
+
+	if (!espi) {
+		new->sm_varchar.default_value = "Unknown";
+		return;
+	}
+
+	snprintf(buf, sizeof(buf), "ID 0x%04x, Rev 0x%02x",
+		 pci_read_config16(espi, PCI_DEVICE_ID),
+		 pci_read_config8(espi, PCI_REVISION_ID));
+	new->sm_varchar.default_value = buf;
+}
+
+static const struct sm_object pch_info = SM_DECLARE_VARCHAR({
+	.flags		= CFR_OPTFLAG_READONLY | CFR_OPTFLAG_VOLATILE,
+	.opt_name	= "pch_info",
+	.ui_name	= "PCH",
+}, WITH_CALLBACK(update_pch_info));
+#endif
+
+/*
+ * Memory fields are built at runtime because the number of populated
+ * DIMMs/channels is only known from the CBMEM memory info table.
+ */
+#define MAX_DIMM_FIELDS	4
+
+static struct sm_object dimm_objs[MAX_DIMM_FIELDS];
+static char dimm_value[MAX_DIMM_FIELDS][80];
+static char dimm_name[MAX_DIMM_FIELDS][sizeof("Memory 255")];
+static char dimm_opt[MAX_DIMM_FIELDS][sizeof("memory_255")];
+static char total_memory_value[sizeof("1048576 MB")];
+
+static const struct sm_object total_memory = SM_DECLARE_VARCHAR({
+	.flags		= CFR_OPTFLAG_READONLY | CFR_OPTFLAG_VOLATILE,
+	.opt_name	= "total_memory",
+	.ui_name	= "Total Memory",
+	.default_value	= total_memory_value,
+});
+
+/* serial + UUID + CPU + CPU ID + PCH + total memory + DIMMs + NULL */
+static const struct sm_object *system_obj_list[MAX_DIMM_FIELDS + 7];
+
+static struct sm_obj_form system_info = {
+	.ui_name = "System Information",
+};
+
+static const char *dram_type_str(uint16_t type)
+{
+	switch (type) {
+	case MEMORY_TYPE_DDR4:
+		return "DDR4";
+	case MEMORY_TYPE_LPDDR4:
+		return "LPDDR4";
+	case MEMORY_TYPE_DDR5:
+		return "DDR5";
+	case MEMORY_TYPE_LPDDR5:
+		return "LPDDR5";
+	default:
+		return "DRAM";
+	}
+}
+
+static void build_system_form(void)
+{
+	const struct memory_info *meminfo = cbmem_find(CBMEM_ID_MEMINFO);
+	uint32_t total_mib = 0;
+	unsigned int dimms = 0;
+	size_t n = 0;
+
+#if CONFIG(GENERATE_SMBIOS_TABLES)
+	system_obj_list[n++] = &system_serial;
+	system_obj_list[n++] = &system_uuid;
+#endif
+	system_obj_list[n++] = &cpu_name;
+	system_obj_list[n++] = &cpu_id;
+#if CONFIG(SOC_INTEL_COMMON)
+	system_obj_list[n++] = &pch_info;
+#endif
+	system_obj_list[n++] = &total_memory;
+
+	for (unsigned int i = 0; meminfo && i < meminfo->dimm_cnt &&
+				 i < ARRAY_SIZE(meminfo->dimm); i++) {
+		const struct dimm_info *dimm = &meminfo->dimm[i];
+		uint16_t speed;
+
+		if (!dimm->dimm_size)
+			continue;
+		total_mib += dimm->dimm_size;
+
+		if (dimms >= MAX_DIMM_FIELDS)
+			continue;
+
+		speed = dimm->configured_speed_mts ? : dimm->ddr_frequency;
+		snprintf(dimm_value[dimms], sizeof(dimm_value[dimms]),
+			 "%u MB %s-%u %s", dimm->dimm_size,
+			 dram_type_str(dimm->ddr_type), speed,
+			 (const char *)dimm->module_part_number);
+		snprintf(dimm_name[dimms], sizeof(dimm_name[dimms]),
+			 "Memory %u", dimms + 1);
+		snprintf(dimm_opt[dimms], sizeof(dimm_opt[dimms]),
+			 "memory_%u", dimms);
+
+		const struct sm_object obj = SM_DECLARE_VARCHAR({
+			.flags		= CFR_OPTFLAG_READONLY | CFR_OPTFLAG_VOLATILE,
+			.opt_name	= dimm_opt[dimms],
+			.ui_name	= dimm_name[dimms],
+			.default_value	= dimm_value[dimms],
+		});
+		memcpy(&dimm_objs[dimms], &obj, sizeof(obj));
+		system_obj_list[n++] = &dimm_objs[dimms];
+		dimms++;
+	}
+
+	snprintf(total_memory_value, sizeof(total_memory_value), "%u MB", total_mib);
+
+	system_obj_list[n] = NULL;
+	system_info.obj_list = system_obj_list;
+}
+
 static struct sm_obj_form *sm_root[] = {
 	&debug,
 	&devices,
 	&ec,
+	&system_info,
 	&versions,
 	NULL
 };
@@ -413,5 +706,6 @@ static struct sm_obj_form *sm_root[] = {
 void mb_cfr_setup_menu(struct lb_cfr *cfr_root)
 {
 	build_versions_form();
+	build_system_form();
 	cfr_write_setup_menu(cfr_root, sm_root);
 }
