@@ -382,6 +382,13 @@ bool cse_is_hfs3_fw_sku_lite(void)
 	return hfs3.fields.fw_sku == ME_HFS3_FW_SKU_LITE;
 }
 
+enum me_fw_sku cse_get_fw_sku(void)
+{
+	union me_hfsts3 hfs3;
+	hfs3.data = me_read_config32(PCI_ME_HFSTS3);
+	return hfs3.fields.fw_sku;
+}
+
 /* Makes the host ready to communicate with CSE */
 void cse_set_host_ready(void)
 {
@@ -939,7 +946,7 @@ int cse_hmrfpo_get_status(void)
 }
 
 /* Queries and gets ME firmware version */
-static enum cb_err get_me_fw_version(struct me_fw_ver_resp *resp)
+enum cb_err cse_get_me_fw_version(struct me_fw_ver_resp *resp)
 {
 	const struct mkhi_hdr fw_ver_msg = {
 		.group_id = MKHI_GROUP_ID_GEN,
@@ -994,7 +1001,7 @@ void print_me_fw_version(void *unused)
 	if (cse_is_hfs3_fw_sku_lite())
 		return;
 
-	if (get_me_fw_version(&resp) == CB_SUCCESS) {
+	if (cse_get_me_fw_version(&resp) == CB_SUCCESS) {
 		printk(BIOS_DEBUG, "ME: Version: %d.%d.%d.%d\n", resp.code.major,
 			resp.code.minor, resp.code.hotfix, resp.code.build);
 		return;

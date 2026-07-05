@@ -465,6 +465,13 @@ int cse_hmrfpo_get_status(void);
 void print_me_fw_version(void *unused);
 
 /*
+ * Queries the ME firmware version over the MKHI HECI client.
+ * Requires HFSTS1 current working state and operation mode to be normal.
+ * Returns CB_SUCCESS on success, CB_ERR otherwise.
+ */
+enum cb_err cse_get_me_fw_version(struct me_fw_ver_resp *resp);
+
+/*
  * Checks current working operation state is normal or not.
  * Returns true if CSE's current working state is normal, otherwise false.
  */
@@ -542,6 +549,11 @@ bool cse_is_hfs1_spi_protected(void);
  * Returns true if CSE's Firmware SKU is Lite, otherwise false
  */
 bool cse_is_hfs3_fw_sku_lite(void);
+
+/*
+ * Returns CSE's Firmware SKU type (enum me_fw_sku) from HFSTS3.
+ */
+enum me_fw_sku cse_get_fw_sku(void);
 
 /*
  * Polls for CSE's current operation mode 'Soft Temp Disable'.
