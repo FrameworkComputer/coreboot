@@ -75,6 +75,24 @@ static const struct sm_object battery_charge_limit = SM_DECLARE_NUMBER({
 	.step		= 5,
 });
 
+static const struct sm_enum_value power_on_ac_attach_values[] = {
+	{ "Keep EC setting",	POWER_ON_AC_ATTACH_EC_DEFAULT },
+	{ "Enabled",		1 },
+	{ "Disabled",		0 },
+	SM_ENUM_VALUE_END,
+};
+
+static const struct sm_object power_on_ac_attach = SM_DECLARE_ENUM({
+	.opt_name	= POWER_ON_AC_ATTACH_OPTION_NAME,
+	.ui_name	= "Power on AC Attach",
+	.ui_helptext	= "Automatically power on the system when a charger is "
+			  "attached.\n"
+			  "\"Keep EC setting\" leaves the behavior as last "
+			  "configured in the EC, e.g. via the OS.",
+	.default_value	= POWER_ON_AC_ATTACH_EC_DEFAULT,
+	.values		= power_on_ac_attach_values,
+});
+
 #if CONFIG(FRAMEWORK_INPUT_DECK)
 static const struct sm_enum_value input_deck_mode_values[] = {
 	{ "Require Modules",	INPUT_DECK_MODE_AUTO },
@@ -236,6 +254,7 @@ static struct sm_obj_form ec = {
 		&battery_disconnect,
 		&kbd_swap_ctrl_fn,
 		&kbd_copilot,
+		&power_on_ac_attach,
 		NULL
 	},
 };

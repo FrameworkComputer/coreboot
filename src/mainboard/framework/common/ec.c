@@ -265,6 +265,23 @@ static void framework_log_chassis_intrusion(void)
 		printk(BIOS_DEBUG, "Chassis intact\n");
 }
 
+static void framework_set_power_on_ac_attach(void)
+{
+	const unsigned int enable = get_uint_option(POWER_ON_AC_ATTACH_OPTION_NAME,
+						    POWER_ON_AC_ATTACH_EC_DEFAULT);
+
+	/* Leave the EC at whatever it has stored. */
+	if (enable == POWER_ON_AC_ATTACH_EC_DEFAULT)
+		return;
+
+	const struct ec_params_power_on_ac_attach params = {
+		.enable = enable,
+	};
+
+	if (framework_ec_send(EC_CMD_POWER_ON_AC_ATTACH, &params, sizeof(params)))
+		printk(BIOS_ERR, "Failed to %s power on AC attach\n",
+		       enable ? "enable" : "disable");
+}
 void mainboard_ec_init(void)
 {
 	static const struct google_chromeec_event_info info = {
@@ -293,6 +310,7 @@ void mainboard_ec_init(void)
 	framework_set_swap_ctrl_fn();
 	framework_set_copilot_key();
 	framework_log_chassis_intrusion();
+	framework_set_power_on_ac_attach();
 }
 
 static void framework_ec_signal_bios_complete(void *unused)
