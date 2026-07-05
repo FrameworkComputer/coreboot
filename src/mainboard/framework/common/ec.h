@@ -122,6 +122,18 @@
 #define INPUT_DECK_MODE_FORCE_OFF	0x04
 
 /*
+ * CFR option controlling whether the system powers on when AC is attached.
+ *
+ * The stored value is the enable byte sent to the EC via
+ * EC_CMD_POWER_ON_AC_ATTACH on every boot; the EC persists it in its own
+ * flash. POWER_ON_AC_ATTACH_EC_DEFAULT means "don't touch the EC and keep
+ * whatever it has stored", e.g. a value set at runtime from the OS, so a
+ * reboot doesn't override the user's OS-side choice.
+ */
+#define POWER_ON_AC_ATTACH_OPTION_NAME	"power_on_ac_attach"
+#define POWER_ON_AC_ATTACH_EC_DEFAULT	0x100	/* out of uint8_t range on purpose */
+
+/*
  * CFR one-shot trigger to disconnect (cut off) the battery, a.k.a. ship mode.
  *
  * Unlike the other options this is not a persistent setting: when set, coreboot
