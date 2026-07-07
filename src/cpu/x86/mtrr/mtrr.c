@@ -19,6 +19,7 @@
 #include <cpu/x86/msr.h>
 #include <cpu/x86/mtrr.h>
 #include <device/device.h>
+#include <device/pci_def.h>
 #include <device/pci_ids.h>
 #include <lib.h>
 #include <memrange.h>
@@ -123,13 +124,14 @@ static int filter_vga_wrcomb(struct device *dev, struct resource *res)
 		return 0;
 
 	/*
-	 * Only mark 32-bit BARs as WC. Some platforms expose additional large
-	 * prefetchable BARs above 4GiB for the iGPU, and tagging those as WC
-	 * can fragment the address space enough to exhaust variable MTRRs.
-	 * Keeping the below-4GiB framebuffer WC is the priority for payload UI
+	 * Only mark standard BARs as WC. Some platforms expose additional
+	 * large prefetchable BARs for the iGPU (e.g. SR-IOV VF BARs), and
+	 * tagging those as WC can fragment the address space enough to
+	 * exhaust variable MTRRs. Only standard BARs can contain the
+	 * framebuffer aperture, which is what matters for payload UI
 	 * performance.
 	 */
-	if (res->size != 0 && res->base >= 0x100000000ULL)
+	if (res->index > PCI_BASE_ADDRESS_5)
 		return 0;
 
 	/* Add resource as write-combining in the address space. */
