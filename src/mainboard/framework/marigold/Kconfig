@@ -22,6 +22,8 @@ config BOARD_FRAMEWORK_MARIGOLD_COMMON
 	select NO_UART_ON_SUPERIO
 	select PCIEXP_SUPPORT_RESIZABLE_BARS
 	select SOC_INTEL_COMMON_BLOCK_HDA_VERB
+	select USE_SAR
+	select SAR_ENABLE
 	select SKIP_SEND_CONNECT_TOPOLOGY_CMD
 	select SOC_INTEL_ENABLE_USB4_PCIE_RESOURCES
 	select SPD_READ_BY_WORD
@@ -37,6 +39,9 @@ if BOARD_FRAMEWORK_MARIGOLD_COMMON
 
 config FMDFILE
 	default "src/mainboard/\$(CONFIG_MAINBOARD_DIR)/board.fmd"
+
+config WIFI_SAR_CBFS_FILEPATH
+	default "src/mainboard/\$(CONFIG_MAINBOARD_DIR)/wifi_sar_defaults.hex"
 
 config MAINBOARD_DIR
 	default "framework/marigold"
