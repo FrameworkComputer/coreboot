@@ -29,6 +29,8 @@ config BOARD_FRAMEWORK_DAHLIA_COMMON
 	select SPD_CACHE_IN_FMAP
 	select SPD_READ_BY_WORD
 	select SOC_INTEL_COMMON_BLOCK_HDA_VERB
+	select USE_SAR
+	select SAR_ENABLE
 
 config BOARD_FRAMEWORK_DAHLIA
 	select BOARD_FRAMEWORK_DAHLIA_COMMON
@@ -50,6 +52,10 @@ config VBOOT
 	select VBOOT_CLEAR_RECOVERY_IN_RAMSTAGE
 	select VBOOT_NO_BOARD_SUPPORT
 	select VBOOT_SLOTS_RW_AB
+
+# Static WiFi/BT regulatory tables
+config WIFI_SAR_CBFS_FILEPATH
+	default "src/mainboard/\$(CONFIG_MAINBOARD_DIR)/wifi_sar_defaults.hex"
 
 # The PTL/WCL SoC default RAMSTAGE_CBFS_CACHE_SIZE is sized only for FSP-S
 # preloading. The UEFI payload is much larger, so enlarge the cache to fit
