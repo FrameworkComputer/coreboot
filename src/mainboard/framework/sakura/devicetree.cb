@@ -293,7 +293,7 @@ chip soc/intel/pantherlake
 				.clk_src = 4,
 				.clk_req = 4,
 				.flags = PCIE_RP_LTR | PCIE_RP_AER,
-				.pcie_rp_aspm = ASPM_L0S_L1,
+				.pcie_rp_aspm = ASPM_L1,
 				.PcieRpL1Substates = L1_SS_L1_2,
 			}"
 			smbios_slot_desc "SlotTypeM2Socket1_SD" "SlotLengthOther"
@@ -306,7 +306,7 @@ chip soc/intel/pantherlake
 				.clk_src = 1,
 				.clk_req = 1,
 				.flags = PCIE_RP_LTR | PCIE_RP_AER,
-				.pcie_rp_aspm = ASPM_L0S_L1,
+				.pcie_rp_aspm = ASPM_L1,
 				.PcieRpL1Substates = L1_SS_L1_2,
 				.pcie_rp_detect_timeout_ms = 15,
 			}"
