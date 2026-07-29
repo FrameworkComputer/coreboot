@@ -15,6 +15,24 @@ chip soc/intel/pantherlake
 		[VR_DOMAIN_ATOM] = 28 * 4
 	}"
 
+	# Thermal design current. FSP-M's TdcEnable is only programmed alongside a
+	# non-zero TdcCurrentLimit, and the FSP in turn skips the TDC mailbox write
+	# unless the limit is non-zero, so without this the tdc_mode and
+	# tdc_time_window_ms below are the only things programmed and VR TDC
+	# protection stays off entirely.
+	#
+	# The vendor reference BIOS enables TDC on all four domains and leaves the
+	# limits at 0 (Auto), which makes the FSP fall back to the per-die values in
+	# its own VR table; those are the values used here. Note that the Auto path
+	# has no IRMS current for any WCL die, so the IA value is its iPL2-mode
+	# current used with the IRMS mode below.
+	register "thermal_design_current[WCL_TDC_1]" = "{
+		[VR_DOMAIN_IA] = 23 * 8,
+		[VR_DOMAIN_GT] = 20 * 8,
+		[VR_DOMAIN_SA] = 20 * 8,
+		[VR_DOMAIN_ATOM] = 19 * 8
+	}"
+
 	register "tdc_mode[VR_DOMAIN_IA]" = "TDC_IRMS"
 	register "tdc_time_window_ms[VR_DOMAIN_IA]" = "28000"
 	# Set the power state thresholds according to document 830097
