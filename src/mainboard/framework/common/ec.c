@@ -180,3 +180,36 @@ static void framework_ec_signal_bios_complete(void *unused)
 }
 BOOT_STATE_INIT_ENTRY(BS_PAYLOAD_LOAD, BS_ON_EXIT,
 		      framework_ec_signal_bios_complete, NULL);
+
+/*
+ * Tell the EC that firmware is handing off to the OS ("non-ACPI mode" in EC
+ * parlance). Takes no payload.
+ *
+ * The EC's handler sets its internal chipset_ready flag, which gates the
+ * PROCHOT assert/deassert around power limit transitions
+ * (update_cpu_power_limit_events()). Without it the EC never considers the AP
+ * ready, and the AP-side half of the EC's power management stays inert.
+ *
+ * The EC also uses this to latch a resume-from-S0ix flag when the command
+ * arrives while the chipset is in standby, and to clear its power flags,
+ * POWER_SLIDE and STT_TABLE_NUMBER scratch values.
+ */
+static void framework_ec_enter_non_acpi_mode(void *unused)
+{
+	struct chromeec_command cmd = {
+		.cmd_code = EC_CMD_NON_ACPI_NOTIFY,
+		.cmd_version = 0,
+		.cmd_data_in = NULL,
+		.cmd_size_in = 0,
+		.cmd_data_out = NULL,
+		.cmd_size_out = 0,
+		.cmd_dev_index = 0,
+	};
+
+	if (google_chromeec_command(&cmd))
+		printk(BIOS_ERR, "mainboard: Failed to notify EC of non-ACPI mode\n");
+	else
+		printk(BIOS_DEBUG, "mainboard: Notified EC of non-ACPI mode\n");
+}
+BOOT_STATE_INIT_ENTRY(BS_PAYLOAD_LOAD, BS_ON_EXIT,
+		      framework_ec_enter_non_acpi_mode, NULL);
