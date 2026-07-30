@@ -7,6 +7,23 @@ chip soc/intel/pantherlake
 	# Enable Enhanced Intel SpeedStep
 	register "eist_enable" = "true"
 
+	# Sustained power. The chipset default for WCL_CORE is PL1 = base power =
+	# 15 W, which throttles noticeably harder than the vendor firmware: an
+	# all-core stress test settles at 15.3 W / 2860 MHz on coreboot versus
+	# 20.4 W / 3160 MHz on a vendor unit (measured with PL1 as the live limit
+	# reason in MSR 0x64F for both).
+	#
+	# 20 W matches what the vendor programs (MSR 0x610 = 0x0000811800dd80a0)
+	# and pcode sustains it even though MSR_PKG_POWER_INFO reports a 15 W base
+	# power, so PL1 above base power is fine on this SKU. PL2 and PL4 are the
+	# chipset defaults, repeated because a devicetree array element replaces
+	# the whole struct.
+	register "power_limits_config[WCL_CORE]" = "{
+		.tdp_pl1_override = 20,
+		.tdp_pl2_override = 35,
+		.tdp_pl4 = 93,
+	}"
+
 	# TCC activation offset = Tjmax. Match vendor BIOS
 	register "tcc_offset" = "0"
 
