@@ -79,10 +79,11 @@ static void configure_misc(void)
 	msr.hi = 0;
 	wrmsr(IA32_PACKAGE_THERM_INTERRUPT, msr);
 
-	/* Enable PROCHOT and Power Performance Platform Override */
+	/* Enable PROCHOT (bidirectional), lock the PROCHOT configuration and
+	   enable Power Performance Platform Override */
 	msr = rdmsr(MSR_POWER_CTL);
 	msr.lo |= ENABLE_BIDIR_PROCHOT;
-	msr.lo |= VR_THERM_ALERT_DISABLE_LOCK;
+	msr.lo |= POWER_CTL_PROCHOT_LOCK;
 	msr.lo |= PWR_PERF_PLATFORM_OVR;
 	wrmsr(MSR_POWER_CTL, msr);
 }

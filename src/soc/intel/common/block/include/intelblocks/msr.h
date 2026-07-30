@@ -55,7 +55,8 @@
 #define  ENABLE_BIDIR_PROCHOT		(1 << 0)
 #define  POWER_CTL_C1E_MASK		(1 << 1)
 #define  PWR_PERF_PLATFORM_OVR		(1 << 18)
-#define  VR_THERM_ALERT_DISABLE_LOCK	(1 << 23)
+/* Locks PROCHOT-related bits of MSR_POWER_CTL until reset */
+#define  POWER_CTL_PROCHOT_LOCK		(1 << 23)
 #define MSR_PRMRR_BASE_0		0x2a0
 #define MSR_PRMRR_BASE(reg)		(MSR_PRMRR_BASE_0 + (reg))
 #define MSR_EVICT_CTL			0x2e0
