@@ -418,6 +418,42 @@ void platform_display_early_shutdown_notification(void *arg)
 }
 #endif
 
+/*
+ * PL1 has to be programmed here, not just via the MSR in ramstage.
+ *
+ * The reference code programs the package RAPL limit from CpuPowerDeliveryInit(),
+ * which SiInitPreMem() calls during FSP-M -- long before BIOS_RESET_CPL. pcode
+ * latches that value as the PL1 ceiling: a later write to MSR_PKG_POWER_LIMIT can
+ * lower the limit but not raise it. Measured on dahlia, with FSP programming 15 W:
+ * writing 8 W to the MSR at runtime gives a sustained 8.2 W, while writing 25 W to
+ * both the MSR and its MCHBAR mirror still gives 15.3 W.
+ *
+ * FSP's own default (PowerLimit1 == 0, i.e. AUTO) is MSR_PKG_POWER_SKU.PkgTdp, so
+ * without this a board can never run PL1 above the SKU's base power. The silicon
+ * has no objection to that: VerifyAndFixCustomPowerLimit() only clamps against
+ * PkgMinPwr/PkgMaxPwr, and both read 0 on this SKU, which the reference treats as
+ * "no limit".
+ *
+ * Despite what the UPD description says, the unit is not milliwatts: FSP computes
+ * PowerLimit1 * GetPowerUnit() / 8, and GetPowerUnit() returns 8 here, so the field
+ * is in the same 1/8 W RAPL units as the MSR. (The description's own example,
+ * "Value set 120 = 15W", agrees.)
+ */
+static void fill_fspm_power_limit_params(FSP_M_CONFIG *m_cfg,
+					 const struct soc_intel_pantherlake_config *config)
+{
+	const struct soc_intel_pantherlake_power_map *map = get_map(config);
+
+	if (!map)
+		return;
+
+	const struct soc_power_limits_config *limits =
+		&config->power_limits_config[map->limits];
+
+	if (limits->tdp_pl1_override)
+		m_cfg->PowerLimit1 = limits->tdp_pl1_override * 8;
+}
+
 static void fill_fspm_acoustic_params(FSP_M_CONFIG *m_cfg,
 				      const struct soc_intel_pantherlake_config *config)
 {
@@ -455,6 +491,7 @@ static void soc_memory_init_params(FSP_M_CONFIG *m_cfg,
 		fill_fspm_trace_params,
 		fill_fspm_thermal_params,
 		fill_fspm_vr_config_params,
+		fill_fspm_power_limit_params,
 		fill_fspm_acoustic_params,
 	};
 
