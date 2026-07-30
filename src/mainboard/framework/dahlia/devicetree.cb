@@ -38,6 +38,9 @@ chip soc/intel/pantherlake
 	# S0ix enable for modern standby
 	register "s0ix_enable" = "true"
 
+	# DPTF policies under the dtt device below (drivers/intel/dptf).
+	register "dptf_enable" = "true"
+
 	# Maximum total system power consumption - roughly 100W TypeC + 50W battery
 	register "psys_pmax_watts" = "149"
 
@@ -85,6 +88,88 @@ chip soc/intel/pantherlake
 
 		device ref npu on end
 		device ref iaa off end
+		device ref dtt on
+			chip drivers/intel/dptf
+				# DPTF is modelled after the vendor firmware's 2.01 DPTF/IETM
+				# implementation (ssdt18 "DptfTabl"), which coreboot's PTL SoC
+				# HIDs already match. The Framework EC is a cros-ec derivative:
+				# temperatures are read from the EC memory map (TSRx._TMP ->
+				# EC0.TSRD()) and the EC owns fan control autonomously, so no
+				# Active/fan policy is defined even though the vendor declares
+				# a TFN1 _ART (its fan participant just mirrors what the EC
+				# does on its own).
+				#
+				# Sensor index maps to the EC's memory-mapped sensor order
+				# (zephyr/program/framework/laptop12/overlay.dtsi; same order
+				# as the thermal zones at the bottom of this file). The vendor
+				# EC orders battery before U31, otherwise the sets match:
+				#   TSR0 = f75303 remote1, Q56 near CPU (vendor SEN2 "VCCGT")
+				#   TSR1 = f75303 remote2, Q57 top skin (vendor SEN3)
+				#   TSR2 = f75303 local, U31           (vendor SEN5 "bottom skin/DDR")
+				#   TSR3 = battery                     (vendor SEN4)
+				register "options.tsr[0].desc" = ""CPU""
+				register "options.tsr[1].desc" = ""TopSkin""
+				register "options.tsr[2].desc" = ""Local""
+				register "options.tsr[3].desc" = ""Battery""
+
+				# Passive policy: throttle the CPU (TCPU) to hold the sensors
+				# below _PSV. The vendor declares _PSV = 65C on every sensor
+				# and relates TCPU to the CPU-adjacent (TRT) and top-skin
+				# (PSVT) sensors. The battery sensor is left to the critical
+				# policy only (its vendor relationship is charger-sourced,
+				# which coreboot's DPTF driver has no equivalent for).
+				register "policies.passive" = "{
+					[0] = DPTF_PASSIVE(CPU, TEMP_SENSOR_0, 65, 5000),
+					[1] = DPTF_PASSIVE(CPU, TEMP_SENSOR_1, 65, 5000),
+					[2] = DPTF_PASSIVE(CPU, TEMP_SENSOR_2, 65, 5000),
+				}"
+
+				# Critical policy: hibernate (S4) at 75C and shut down at
+				# 80C, matching the vendor's _HOT = 75C and _CRT = 80C
+				# declared on all four sensors.
+				register "policies.critical" = "{
+					[0] = DPTF_CRITICAL(TEMP_SENSOR_0, 80, SHUTDOWN),
+					[1] = DPTF_CRITICAL(TEMP_SENSOR_1, 80, SHUTDOWN),
+					[2] = DPTF_CRITICAL(TEMP_SENSOR_2, 80, SHUTDOWN),
+					[3] = DPTF_CRITICAL(TEMP_SENSOR_3, 80, SHUTDOWN),
+					[4] = DPTF_CRITICAL(TEMP_SENSOR_0, 75, S4),
+					[5] = DPTF_CRITICAL(TEMP_SENSOR_1, 75, S4),
+					[6] = DPTF_CRITICAL(TEMP_SENSOR_2, 75, S4),
+					[7] = DPTF_CRITICAL(TEMP_SENSOR_3, 75, S4),
+				}"
+
+				# Power limits (PPCC) published to the CPU (TCPU) participant,
+				# following the vendor's runtime-resolved shape (ssdt18 CPLX():
+				# PL1 min hardcoded 0.125W, PL1 max = programmed PL1, window
+				# PLW..PLW+4s; PL2 min = max = programmed PL2, no window; step
+				# size 500mW from the DptfConfig efivar). The vendor programs
+				# PL1 20W / PL2 35W (MSR 0x610), the same envelope coreboot
+				# sets in power_limits_config above:
+				#   PL1 0.125W..20W, 28-32s window, 0.5W step
+				#   PL2 35W fixed (min=max), no window, 0.5W step
+				# This is the range advertised to the OS DPTF driver; the EC
+				# remains the final arbiter of the applied limits.
+				register "controls.power_limits" = "{
+					.pl1 = {
+							.min_power = 125,
+							.max_power = 20000,
+							.time_window_min = 28 * MSECS_PER_SEC,
+							.time_window_max = 32 * MSECS_PER_SEC,
+							.granularity = 500,
+						},
+					.pl2 = {
+							.min_power = 35000,
+							.max_power = 35000,
+							.time_window_min = 0,
+							.time_window_max = 0,
+							.granularity = 500,
+						}
+				}"
+
+				device generic 0 alias dptf_policy on end
+			end
+		end
+
 		device ref tbt_pcie_rp0 on end
 		device ref tbt_pcie_rp1 on end
 
