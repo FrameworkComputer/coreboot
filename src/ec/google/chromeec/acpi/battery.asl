@@ -453,6 +453,15 @@ Device (BAT0)
 	{
 		Return (BBST (0, PBST, RefOf (BSTP), BFWK))
 	}
+
+#ifdef EC_FRAMEWORK_ACPI_SHARED_MEM_IO
+	// Battery Trip Point: Framework EC raises host event 60 (_Q3C)
+	// when the remaining capacity crosses this threshold.
+	Method (_BTP, 1, NotSerialized)
+	{
+		BTPT = Arg0
+	}
+#endif
 }
 
 #ifdef EC_ENABLE_SECOND_BATTERY_DEVICE

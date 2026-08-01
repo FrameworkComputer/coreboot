@@ -127,8 +127,9 @@ Device (EC0)
 	 * Framework EC custom shared-memory
 	 *   byte 0 (EC memmap 0x100): system flags
 	 *   byte 1 (EC memmap 0x101): power state
+	 *   bytes 8-9 (EC memmap 0x108): battery trip point
 	 */
-	OperationRegion (FRMW, SystemIO, EC_FRAMEWORK_ACPI_SHARED_MEM_IO, 0x02)
+	OperationRegion (FRMW, SystemIO, EC_FRAMEWORK_ACPI_SHARED_MEM_IO, 0x0A)
 	Field (FRMW, ByteAcc, NoLock, Preserve)
 	{
 		ADRD, 1,	// ACPI driver ready (exit EC preOS mode)
@@ -136,6 +137,8 @@ Device (EC0)
 		    , 6,	// EC_PS_{ENTER,RESUME}_S3/S4/S5
 		ENS0, 1,	// EC_PS_ENTER_S0ix  (BIT6)
 		RES0, 1,	// EC_PS_RESUME_S0ix (BIT7)
+		Offset (0x08),
+		BTPT, 16,	// Battery trip point, same raw units as BTRA (mAh)
 	}
 #else
 	/* Dummy vars to avoid guarding in S0ix() */
@@ -572,6 +575,17 @@ Device (EC0)
 		Notify (\_SB.DPTF, INT3400_ODVP_CHANGED)
 #endif
 	}
+
+#ifdef EC_FRAMEWORK_ACPI_SHARED_MEM_IO
+	/*
+	 * Framework EC battery trip point crossed (host event 60).
+	 */
+	Method (_Q3C, 0, NotSerialized)
+	{
+		Printf ("EC: BATTERY TRIP POINT")
+		Notify (BAT0, 0x80)
+	}
+#endif
 
 	/*
 	 * Dynamic Platform Thermal Framework support
