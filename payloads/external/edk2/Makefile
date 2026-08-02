@@ -385,7 +385,7 @@ print:
 		-e 's/s /Build:          Silent/' \
 		-e 's/t /Toolchain:      /'
 
-prep: $(EDK2_PATH) $(EDK2_PLATFORMS_PATH) clean checktools logo gop_driver ipxe_rom
+prep: $(EDK2_PATH) $(EDK2_PLATFORMS_PATH) clean-build checktools logo gop_driver ipxe_rom
 	cd $(WORKSPACE); \
 		source $(EDK2_PATH)/edksetup.sh; \
 		unset CC; $(MAKE) -C $(EDK2_PATH)/BaseTools 2>&1; \
@@ -439,13 +439,33 @@ UniversalPayload: $(WORKSPACE)/Build/UefiPayloadPkgX64/$(RELEASE_STR)_GCC/IA32/U
 	mv $(WORKSPACE)/Build/UefiPayloadPkgX64/$(RELEASE_STR)_GCC/IA32/UefiPayloadPkg/ShimLayer/ShimLayer/DEBUG/ShimLayer.dll \
 		$(EDK2_UNIVERSAL_PAYLOAD_OUT)
 
-clean:
+# Wipe the payload build output only. This runs as part of every build (see
+# prep), so it must not touch BaseTools, which is expensive to rebuild.
+clean-build:
 	test -d $(WORKSPACE) && (cd $(WORKSPACE); rm -rf Build; rm -f Conf/tools_def.txt Conf/CapsuleFmpPkcs7Pcd.inc) || exit 0
+
+# BaseTools objects are not covered by clean-build. Their generated .d files
+# record absolute paths to the system headers used at compile time, so they go
+# stale whenever the toolchain moves (e.g. a new glibc prefix), leaving the
+# build unable to resolve prerequisites like stdc-predef.h.
+# Glob rather than use EDK2_PATH: that is derived from CONFIG_EDK2_REPOSITORY,
+# which is unset when this makefile is invoked on its own, and this way a
+# checkout left behind by a previously configured repository is cleaned too.
+clean-basetools:
+	for basetools in $(WORKSPACE)/*/BaseTools; do \
+		test -d "$$basetools" || continue; \
+		echo "EDK2: Cleaning BaseTools"; \
+		$(MAKE) -s --no-print-directory -C "$$basetools" clean 2>&1 \
+			| grep -vE '^(File|Directory) .+ does not exist\.$$' || true; \
+	done
+
+clean: clean-build clean-basetools
 
 distclean:
 	rm -rf $(WORKSPACE)
 
-.PHONY: $(EDK2_PATH) checktools logo UefiPayloadPkg UniversalPayload clean distclean
+.PHONY: $(EDK2_PATH) checktools logo UefiPayloadPkg UniversalPayload
+.PHONY: clean clean-build clean-basetools distclean
 
 .PHONY: coreboot_capsule capsule_keys
 
