@@ -7,6 +7,12 @@
 #include <soc/gpe.h>
 
 /*
+ * Framework CrosEC fork event: battery trip point (_BTP) crossed.
+ * Not part of the upstream cros-ec host_event_code enum.
+ */
+#define EC_HOST_EVENT_BATT_BTP 60
+
+/*
  * EC events that the Framework CrosEC fork raises as SCIs
  * Does NOT include Chromebook events like MKBP, PD_MCU, ...
  */
@@ -18,7 +24,8 @@
 	 EC_HOST_EVENT_MASK(EC_HOST_EVENT_AC_DISCONNECTED) |  \
 	 EC_HOST_EVENT_MASK(EC_HOST_EVENT_BATTERY_LOW) |      \
 	 EC_HOST_EVENT_MASK(EC_HOST_EVENT_BATTERY_CRITICAL) | \
-	 EC_HOST_EVENT_MASK(EC_HOST_EVENT_BATTERY))
+	 EC_HOST_EVENT_MASK(EC_HOST_EVENT_BATTERY) | \
+	 EC_HOST_EVENT_MASK(EC_HOST_EVENT_BATT_BTP))
 #define MAINBOARD_EC_SMI_EVENTS (EC_HOST_EVENT_MASK(EC_HOST_EVENT_LID_CLOSED))
 /* EC can wake from S5 with power button only */
 #define MAINBOARD_EC_S5_WAKE_EVENTS EC_HOST_EVENT_MASK(EC_HOST_EVENT_POWER_BUTTON)
