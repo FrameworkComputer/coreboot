@@ -58,8 +58,8 @@ chip soc/intel/alderlake
 				end
 			end
 		end
-		# One Hayden Bridge retimer per Type-C port; SOC_DG_BB_FORCE_PWR
-		# (GPP_E4) force-powers all of them.
+		# One Burnside Bridge retimer (JHL8440R) per Type-C port
+		# SOC_DG_BB_FORCE_PWR (GPP_E4) force-powers all four.
 		device ref tcss_dma0 on
 			chip drivers/intel/usb4/retimer
 				use tcss_usb3_port1 as dfp[0].typec_port
@@ -96,22 +96,22 @@ chip soc/intel/alderlake
 				device ref xhci_root_hub on
 					chip drivers/usb/acpi
 						device ref usb2_port2 on end
-						register "desc" = ""USB2 Type-C JUSB1""
+						register "desc" = ""USB2 Type-C JUSBC1""
 						register "type" = "UPC_TYPE_C_USB2_SS_SWITCH"
 					end
 					chip drivers/usb/acpi
 						device ref usb2_port3 on end
-						register "desc" = ""USB2 Type-C JUSB2""
+						register "desc" = ""USB2 Type-C JUSBC2""
 						register "type" = "UPC_TYPE_C_USB2_SS_SWITCH"
 					end
 					chip drivers/usb/acpi
 						device ref usb2_port4 on end
-						register "desc" = ""USB2 Type-C JUSB3""
+						register "desc" = ""USB2 Type-C JUSBC3""
 						register "type" = "UPC_TYPE_C_USB2_SS_SWITCH"
 					end
 					chip drivers/usb/acpi
 						device ref usb2_port5 on end
-						register "desc" = ""USB2 Type-C JUSB4""
+						register "desc" = ""USB2 Type-C JUSBC4""
 						register "type" = "UPC_TYPE_C_USB2_SS_SWITCH"
 					end
 					chip drivers/usb/acpi
