@@ -2,7 +2,7 @@
 
 #include <device/azalia_device.h>
 
-/* TODO: verify which codec is actually fitted on this board */
+/* Pin configs verified against a codec dump from vendor BIOS 3.20 T01 */
 static const u32 idt_92hd95_verbs[] = {
 	AZALIA_SUBVENDOR(0, 0xf1110002),
 	AZALIA_RESET(1),
