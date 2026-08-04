@@ -193,10 +193,13 @@ chip soc/intel/alderlake
 				device i2c 2c on end
 			end
 		end
-		device ref pcie_rp4 on
-			register "pch_pcie_rp[PCH_RP(4)]" = "{
+		# M.2/M 2280 SSD hangs off the CPU-attached x4 port (PEG60, 00:06.0)
+		device ref pcie4_0 on
+			register "cpu_pcie_rp[CPU_RP(1)]" = "{
 				.clk_src = 3,
 				.clk_req = 3,
+				.flags = PCIE_RP_LTR | PCIE_RP_AER,
+				.pcie_rp_aspm = ASPM_L1,
 			}"
 			chip soc/intel/common/block/pcie/rtd3
 				register "reset_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_LOW(GPP_F20)"
