@@ -1,5 +1,5 @@
 Vendor name: Framework
-Board name: Alderlake Laptop
+Board name: Laptop (12th Gen Intel Core)
 Category: laptop
 ROM protocol: SPI
 ROM socketed: n

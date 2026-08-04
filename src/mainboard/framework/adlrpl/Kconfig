@@ -42,7 +42,7 @@ config MAINBOARD_SMBIOS_PRODUCT_NAME
 	default "Laptop (12th Gen Intel Core)" if BOARD_FRAMEWORK_HX30
 
 config MAINBOARD_FAMILY
-	default "Laptop"
+	default "13in Laptop"
 
 config CONSOLE_POST
 	default y
