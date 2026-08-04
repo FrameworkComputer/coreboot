@@ -1,10 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 chip soc/intel/alderlake
-	register "serial_io_uart_mode" = "{
-		[PchSerialIoIndexUART0] = PchSerialIoSkipInit,
-	}"
-
 	# Vendor FADT sets "Low Power S0 Idle" and ships an LPIT
 	register "s0ix_enable" = "true"
 
@@ -219,6 +215,9 @@ chip soc/intel/alderlake
 				device generic 0 on end
 			end
 			smbios_slot_desc "SlotTypeM2Socket1_SD" "SlotLengthOther" "M.2/E 2230 (JWLAN)" "SlotDataBusWidth1X"
+		end
+		device ref uart0 on
+			register "serial_io_uart_mode[PchSerialIoIndexUART0]" = "PchSerialIoSkipInit"
 		end
 		device ref pch_espi on
 			register "gen1_dec" = "0x000c0201"	# EC host cmd:  0x200-0x20F
