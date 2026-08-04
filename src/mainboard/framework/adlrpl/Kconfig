@@ -45,4 +45,7 @@ config UART_FOR_CONSOLE
 config DRIVER_TPM_SPI_CHIP
 	default 2
 
+config FMDFILE
+	default "src/mainboard/\$(CONFIG_MAINBOARD_DIR)/board.fmd"
+
 endif
