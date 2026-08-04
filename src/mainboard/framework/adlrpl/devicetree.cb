@@ -145,6 +145,7 @@ chip soc/intel/alderlake
 				register "generic.hid" = ""CSW1322""
 				register "generic.desc" = ""Touchscreen""
 				register "generic.irq_gpio" = "ACPI_GPIO_IRQ_LEVEL_LOW_WAKE(GPP_F13)"
+				register "generic.detect" = "1"
 				register "hid_desc_reg_offset" = "0x01"
 				device i2c 41 on end
 			end
