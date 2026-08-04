@@ -4,29 +4,27 @@
 #include <mainboard/ramstage.h>
 
 /*
- * Comments follow the form:
- *
- * Pad function / net name (notes)
+ * Values checked inteltool GPIO dump of vendor BIOS 3.20 T01.
  */
 static const struct pad_config gpio_table[] = {
 	/* ------- GPIO Community 0 ------- */
 
 	/* ------- GPIO Group GPP_B ------- */
-	PAD_CFG_NF(GPP_B0, NONE, PLTRST, NF1),			/* TODO: CORE_VID0 / VCCIN_AUX_CORE_VID0 */
-	PAD_CFG_NF(GPP_B1, NONE, PLTRST, NF1),			/* TODO: CORE_VID1 / VCCIN_AUX_CORE_VID1 */
-	PAD_CFG_NF(GPP_B2, NONE, PLTRST, NF1),			/* TODO: VRALERT# / VCCIN_AUX_CORE_ALERT# */
-	PAD_CFG_GPI_TRIG_OWN(GPP_B3, UP_5K, PLTRST, LEVEL, ACPI),	/* GPP_B3 / SOC_TP_INT# */
+	PAD_CFG_NF(GPP_B0, NONE, PLTRST, NF1),			/* CORE_VID0 / VCCIN_AUX_CORE_VID0 */
+	PAD_CFG_NF(GPP_B1, NONE, PLTRST, NF1),			/* CORE_VID1 / VCCIN_AUX_CORE_VID1 */
+	PAD_CFG_NF(GPP_B2, NONE, PLTRST, NF1),			/* VRALERT# / VCCIN_AUX_CORE_ALERT# */
+	PAD_CFG_GPI_INT(GPP_B3, UP_5K, PLTRST, LEVEL),		/* GPP_B3 / SOC_TP_INT# */
 	PAD_NC(GPP_B4, NONE),
 	PAD_NC(GPP_B5, NONE),					/* ISH_I2C0_SDA / ISH_I2C_0_SDA (NC) */
 	PAD_NC(GPP_B6, NONE),					/* ISH_I2C0_SCL / ISH_I2C_0_SCL (NC) */
-	PAD_CFG_NF(GPP_B7, NONE, PLTRST, NF2),			/* TODO: I2C3_SDA / I2C_3_SDA */
-	PAD_CFG_NF(GPP_B8, NONE, PLTRST, NF2),			/* TODO: I2C3_SCL / I2C_3_SCL */
+	PAD_CFG_NF(GPP_B7, NONE, PLTRST, NF2),			/* I2C3_SDA / I2C_3_SDA */
+	PAD_CFG_NF(GPP_B8, NONE, PLTRST, NF2),			/* I2C3_SCL / I2C_3_SCL */
 	/* GPP_B9 not available */
 	/* GPP_B10 not available */
-	_PAD_CFG_STRUCT(GPP_B11, 0xc4000702, 0x00000000),	/* TODO: GPP_B11 / SOC_PD_INT# */
+	PAD_CFG_NF(GPP_B11, NONE, PWROK, NF1),			/* PMCALERT# / SOC_PD_INT# */
 	PAD_CFG_NF(GPP_B12, NONE, PLTRST, NF1),			/* SLP_S0# / PM_SLP_S0# */
 	PAD_CFG_NF(GPP_B13, NONE, PLTRST, NF1),			/* PLTRST# / SOC_PLTRST# */
-	PAD_CFG_NF(GPP_B14, NONE, PLTRST, NF1),			/* TODO: SPKR / SPKR */
+	PAD_NC(GPP_B14, NONE),					/* SPKR / SPKR */
 	PAD_NC(GPP_B15, NONE),
 	PAD_NC(GPP_B16, NONE),					/* ISH_I2C2_SDA / ISH_I2C_2_SDA (NC) */
 	PAD_NC(GPP_B17, NONE),					/* ISH_I2C2_SCL / ISH_I2C_2_SCL (NC) */
@@ -38,8 +36,8 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC(GPP_B23, NONE),					/* GPP_B23 / SOC_GPP_B23 (Strap, NC) */
 
 	/* ------- GPIO Group GPP_T ------- */
-	PAD_NC(GPP_T2, NONE),		/* T58 */
-	PAD_NC(GPP_T3, NONE),		/* T57 */
+	PAD_NC(GPP_T2, NONE),					/* Testpoint T58 */
+	PAD_NC(GPP_T3, NONE),					/* Testpoint T57 */
 
 	/* ------- GPIO Group GPP_A ------- */
 	PAD_CFG_NF(GPP_A0, NONE, PLTRST, NF1),			/* ESPI_IO0 / ESPI_IO0 */
@@ -53,7 +51,7 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC(GPP_A8, NONE),
 	PAD_CFG_NF(GPP_A9, NONE, PLTRST, NF1),			/* ESPI_CLK / ESPI_CLK */
 	PAD_CFG_NF(GPP_A10, NONE, PLTRST, NF1),			/* ESPI_RESET# / ESPI_RST# */
-	PAD_NC(GPP_A11, NONE),					/* GPP_A11 / SOC_WL_OFF# */
+	PAD_NC(GPP_A11, NONE),					/* GPP_A11 / SOC_WL_OFF# (Not hooked up to M.2) */
 	PAD_NC(GPP_A12, NONE),
 	PAD_CFG_GPO(GPP_A13, 1, DEEP),				/* GPP_A13 / SOC_BT_ON */
 	PAD_NC(GPP_A14, NONE),
@@ -76,13 +74,13 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC(GPP_S3, NONE),
 	PAD_NC(GPP_S4, NONE),
 	PAD_NC(GPP_S5, NONE),
-	PAD_NC(GPP_S6, NONE),		/* TODO: DMIC_CLK_A1 / PCH_DMIC_CLK_R */
-	PAD_NC(GPP_S7, NONE),		/* TODO: DMIC_DATA1 / PCH_DMIC_DATA */
+	PAD_NC(GPP_S6, NONE),					/* DMIC_CLK_A1 / PCH_DMIC_CLK_R (unused) */
+	PAD_NC(GPP_S7, NONE),					/* DMIC_DATA1 / PCH_DMIC_DATA (unused) */
 
 	/* ------- GPIO Group GPP_H ------- */
 	PAD_NC(GPP_H0, NONE),					/* GPP_H0 / SOC_GPP_H0 (Strap, NC) */
-	PAD_NC(GPP_H1, NONE),					/* TODO: GPP_H1 / SOC_GPP_H1 (Strap, probably NC) */
-	PAD_NC(GPP_H2, NONE),					/* TODO: GPP_H2 / RTD3_WLAN_PLT_RST# - UC14 */
+	PAD_NC(GPP_H1, NONE),					/* GPP_H1 / SOC_GPP_H1 (Strap, NC) */
+	PAD_NC(GPP_H2, NONE),					/* GPP_H2 / RTD3_WLAN_PLT_RST# - UC14 (unused) */
 	PAD_NC(GPP_H3, NONE),
 	PAD_CFG_NF(GPP_H4, NONE, PLTRST, NF1),			/* I2C0_SDA / I2C_0_SDA */
 	PAD_CFG_NF(GPP_H5, NONE, PLTRST, NF1),			/* I2C0_SCL / I2C_0_SCL */
@@ -90,6 +88,10 @@ static const struct pad_config gpio_table[] = {
 	PAD_CFG_NF(GPP_H7, NONE, PLTRST, NF1),			/* I2C1_SCL / EC_SMB_CLK0 */
 	PAD_NC(GPP_H8, NONE),
 	PAD_NC(GPP_H9, NONE),
+	/*
+	 * Debug console. DEEP rather than the vendor's PLTRST so the pads stay
+	 * configured across a platform reset, matching gpio_early.c.
+	 */
 	PAD_CFG_NF(GPP_H10, NONE, DEEP, NF2),			/* UART0_RXD / UART_0_CRXD_DTXD */
 	PAD_CFG_NF(GPP_H11, NONE, DEEP, NF2),			/* UART0_TXD / UART_0_CTXD_DRXD */
 	PAD_NC(GPP_H12, NONE),
@@ -99,7 +101,7 @@ static const struct pad_config gpio_table[] = {
 	/* GPP_H16 not available */
 	PAD_NC(GPP_H17, NONE),
 	PAD_CFG_NF(GPP_H18, NONE, PLTRST, NF1),			/* PROC_C10_GATE# / CPU_C10_GATE# */
-	PAD_CFG_NF(GPP_H19, NONE, PLTRST, NF1),			/* SRCCLKREQ4# / CLKREQ_PCIE#4 */
+	PAD_CFG_NF(GPP_H19, NONE, DEEP, NF1),			/* SRCCLKREQ4# / CLKREQ_PCIE#4 (JWLAN) */
 	PAD_NC(GPP_H20, NONE),
 	PAD_NC(GPP_H21, NONE),
 	PAD_NC(GPP_H22, NONE),
@@ -109,16 +111,17 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC(GPP_D0, NONE),					/* GPP_D0 / SOC_ACC_INT# (NC) */
 	PAD_NC(GPP_D1, NONE),
 	PAD_NC(GPP_D2, NONE),					/* GPP_D2 / SOC_ALS_INT# (NC) */
-	PAD_CFG_GPI_TRIG_OWN(GPP_D3, UP_20K, PLTRST, LEVEL, ACPI),	/* GPP_D3 / SOC_EC_INT# */
+	PAD_CFG_GPI_INT(GPP_D3, UP_20K, PLTRST, LEVEL),		/* GPP_D3 / SOC_EC_INT# */
 	PAD_NC(GPP_D4, NONE),
 	PAD_NC(GPP_D5, NONE),
 	PAD_NC(GPP_D6, NONE),
 	PAD_NC(GPP_D7, NONE),
-	PAD_CFG_NF(GPP_D8, NONE, PLTRST, NF1),			/* TODO: SRCCLKREQ3# / CLKREQ_PCIE#3 */
-	PAD_CFG_NF(GPP_D9, NONE, PLTRST, NF4),			/* TODO: TBT_LSX2_TXD / TBT_2_LSX_TX */
-	PAD_CFG_NF(GPP_D10, NONE, PLTRST, NF4),			/* TODO: TBT_LSX2_RXD / TBT_2_LSX_RX */
-	PAD_CFG_NF(GPP_D11, NONE, PLTRST, NF4),			/* TODO: TBT_LSX3_TXD / TBT_3_LSX_TX */
-	PAD_CFG_NF(GPP_D12, NONE, PLTRST, NF4),			/* TODO: TBT_LSX3_RXD / TBT_3_LSX_RX */
+	PAD_CFG_NF(GPP_D8, NONE, DEEP, NF1),			/* SRCCLKREQ3# / CLKREQ_PCIE#3 (JSSD) */
+	/* TODO: inteltool dump seems to not configure these TBT pins, figure out if they're used or not */
+	PAD_NC(GPP_D9, NATIVE),					/* TBT_LSX2_TXD / TBT_2_LSX_TX */
+	PAD_NC(GPP_D10, NATIVE),				/* TBT_LSX2_RXD / TBT_2_LSX_RX */
+	PAD_NC(GPP_D11, NATIVE),				/* TBT_LSX3_TXD / TBT_3_LSX_TX */
+	PAD_NC(GPP_D12, NATIVE),				/* TBT_LSX3_RXD / TBT_3_LSX_RX */
 	PAD_NC(GPP_D13, NONE),
 	PAD_NC(GPP_D14, NONE),
 	PAD_NC(GPP_D15, NONE),
@@ -128,40 +131,17 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC(GPP_D19, NONE),
 
 	/* ------- GPIO Group vGPIO ------- */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_0, 0x40000200, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_4, 0x44000102, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_5, 0x40000003, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_6, 0x40000402, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_7, 0x40000400, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_8, 0x40000400, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_9, 0x40000402, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_10, 0x40000402, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_11, 0x40000400, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_12, 0x40000400, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_13, 0x40000402, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_18, 0x40000402, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_19, 0x40000400, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_20, 0x40000400, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_21, 0x40000402, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_22, 0x40000402, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_23, 0x40000400, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_24, 0x40000400, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_25, 0x40000402, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_30, 0x40000400, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_31, 0x40000400, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_32, 0x40000400, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_33, 0x40000400, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_34, 0x40000400, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_35, 0x40000400, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_36, 0x40000400, 0x00000000), */
-	/* _PAD_CFG_STRUCT(GPP_VGPIO_37, 0x40000400, 0x00000000), */
+	/* Left to the FSP/CNVi defaults, matching the vendor firmware. */
 
 	/* ------- GPIO Community 2 ------- */
 
 	/* ------- GPIO Group GPP_GPD ------- */
 	PAD_CFG_NF(GPD0, NONE, PWROK, NF1),			/* BATLOW# / PM_BATLOW# */
 	PAD_CFG_NF(GPD1, NONE, PWROK, NF1),			/* ACPRESENT / AC_PRESENT */
-	PAD_NC(GPD2, NONE),					/* TODO: LAN_WAKE# / LAN_WAKE# */
+	/* Unused, but the vendor leaves it as an inverted level GPI */
+	_PAD_CFG_STRUCT(GPD2, PAD_FUNC(GPIO) | PAD_RESET(PWROK) |
+		PAD_TRIG(LEVEL) | PAD_RX_POL(INVERT) |
+		PAD_BUF(TX_RX_DISABLE), 0),			/* LAN_WAKE# / LAN_WAKE# */
 	PAD_CFG_NF(GPD3, NONE, PWROK, NF1),			/* PWRBTN# / PBTN_OUT# */
 	PAD_CFG_NF(GPD4, NONE, PWROK, NF1),			/* SLP_S3# / PM_SLP_S3# */
 	PAD_CFG_NF(GPD5, NONE, PWROK, NF1),			/* SLP_S4# / PM_SLP_S4#_R */
@@ -175,30 +155,15 @@ static const struct pad_config gpio_table[] = {
 	/* ------- GPIO Community 4 ------- */
 
 	/* ------- GPIO Group GPP_C ------- */
-	PAD_CFG_NF(GPP_C0, NONE, PLTRST, NF1),			/* SMBCLK / SOC_SMBCLK */
-	PAD_CFG_NF(GPP_C1, NONE, PLTRST, NF1),			/* SMBDATA / SOC_SMBDATA */
-	_PAD_CFG_STRUCT(GPP_C2, 0x84000301, 0x00000000),	/* TODO: GPP_C2 / SOC_GPP_C2 (Strap) */
-	PAD_CFG_NF(GPP_C3, NONE, PLTRST, NF1),			/* SML0CLK / SOC_SML0CLK */
-	PAD_CFG_NF(GPP_C4, NONE, PLTRST, NF1),			/* SML0DATA / SOC_SML0DATA */
-	PAD_NC(GPP_C5, NONE),					/* TODO: GPP_C5 / SOC_GPP_C5 (Strap) */
-	PAD_CFG_NF(GPP_C6, NONE, RSMRST, NF1),			/* SML1CLK / SOC_SML1CLK_R */
-	PAD_CFG_NF(GPP_C7, NONE, RSMRST, NF1),			/* SML1DATA / SOC_SML1DATA_R */
-	/* GPP_C8 not available */
-	/* GPP_C9 not available */
-	/* GPP_C10 not available */
-	/* GPP_C11 not available */
-	/* GPP_C12 not available */
-	/* GPP_C13 not available */
-	/* GPP_C14 not available */
-	/* GPP_C15 not available */
-	/* GPP_C16 not available */
-	/* GPP_C17 not available */
-	/* GPP_C18 not available */
-	/* GPP_C19 not available */
-	/* GPP_C20 not available */
-	/* GPP_C21 not available */
-	/* GPP_C22 not available */
-	/* GPP_C23 not available */
+	PAD_CFG_NF(GPP_C0, NONE, PLTRST, NF1),			/* SMBCLK / SOC_SMBCLK (DDR) */
+	PAD_CFG_NF(GPP_C1, NONE, PLTRST, NF1),			/* SMBDATA / SOC_SMBDATA (DDR) */
+	PAD_NC(GPP_C2, NONE),					/* GPP_C2 / SOC_GPP_C2 (Strap) */
+	PAD_CFG_NF(GPP_C3, NONE, PLTRST, NF1),			/* SML0CLK / SOC_SML0CLK (BB Retimer)*/
+	PAD_CFG_NF(GPP_C4, NONE, PLTRST, NF1),			/* SML0DATA / SOC_SML0DATA (BB Retimer)*/
+	PAD_NC(GPP_C5, NONE),					/* GPP_C5 / SOC_GPP_C5 (Strap) */
+	PAD_CFG_NF(GPP_C6, NONE, PWROK, NF1),			/* SML1CLK / SOC_SML1CLK_R (PD) */
+	PAD_CFG_NF(GPP_C7, NONE, PWROK, NF1),			/* SML1DATA / SOC_SML1DATA_R (PD) */
+	/* GPP_C8 through GPP_C23 not available */
 
 	/* ------- GPIO Group GPP_F ------- */
 	PAD_CFG_NF(GPP_F0, NONE, PLTRST, NF1),			/* CNV_BRI_DT / CNV_BRI_CTX_DRX */
@@ -208,15 +173,16 @@ static const struct pad_config gpio_table[] = {
 	PAD_CFG_NF(GPP_F4, NONE, PLTRST, NF1),			/* CNV_RF_RESET# / CNV_RF_RESET# */
 	PAD_CFG_NF(GPP_F5, NONE, PLTRST, NF2),			/* MODEM_CLKREQ / CLKREQ_CNV# */
 	PAD_NC(GPP_F6, NONE),
-	PAD_NC(GPP_F7, NONE),					/* TODO: GPP_F7 / GPP_F7_STRAP */
+	PAD_NC(GPP_F7, NONE),					/* GPP_F7 / GPP_F7_STRAP */
 	/* GPP_F8 not available */
 	PAD_NC(GPP_F9, NONE),					/* BOOTMPC / BOOTMPC (Strap, NC) */
 	PAD_NC(GPP_F10, NONE),					/* GPP_F10 / GPP_F10_STRAP */
 	PAD_CFG_GPI_APIC(GPP_F11, UP_20K, DEEP, LEVEL, INVERT),	/* GPP_F11 / TPM_PIRQ# */
 	PAD_NC(GPP_F12, NONE),
-	PAD_NC(GPP_F13, NONE),					/* TODO: GPP_F13 / TS_INT# */
-	PAD_NC(GPP_F14, NONE),					/* TODO: GPP_F14 / TS_RST */
-	PAD_NC(GPP_F15, NONE),					/* TODO: GPP_F15 / TS_EN */
+	/* Touchscreen (touch SKUs only); GpioInt() from the I2C HID device */
+	PAD_CFG_GPI_INT(GPP_F13, NONE, PLTRST, LEVEL),		/* GPP_F13 / TS_INT# */
+	PAD_CFG_GPO(GPP_F14, 1, PLTRST),			/* GPP_F14 / TS_RST */
+	PAD_CFG_GPO(GPP_F15, 1, PLTRST),			/* GPP_F15 / TS_EN */
 	PAD_NC(GPP_F16, NONE),
 	PAD_NC(GPP_F17, NONE),
 	PAD_NC(GPP_F18, NONE),
@@ -235,7 +201,7 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC(GPP_E5, NONE),
 	PAD_NC(GPP_E6, NONE),					/* GPP_E6 / GPP_E6 (Strap) */
 	PAD_NC(GPP_E7, NONE),
-	PAD_NC(GPP_E8, NONE),					/* TODO: GPP_E8 / SLP_DRAM# */
+	PAD_NC(GPP_E8, NONE),					/* SLP_DRAM# / SLP_DRAM# (unused, 100k external pulldown) */
 	PAD_CFG_NF(GPP_E9, NONE, PLTRST, NF1),			/* USB_OC0# / CCG6_PD1_OC0# */
 	PAD_NC(GPP_E10, NONE),
 	PAD_NC(GPP_E11, NONE),
@@ -245,10 +211,11 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC(GPP_E15, NONE),
 	PAD_NC(GPP_E16, NONE),
 	PAD_NC(GPP_E17, NONE),
-	PAD_CFG_NF(GPP_E18, NONE, PLTRST, NF4),			/* TBT_LSX0_TXD / TBT_0_LSX_TX */
-	PAD_CFG_NF(GPP_E19, NONE, PLTRST, NF4),			/* TBT_LSX0_RXD / TBT_0_LSX_RX */
-	PAD_CFG_NF(GPP_E20, NONE, PLTRST, NF4),			/* TBT_LSX1_TXD / TBT_1_LSX_TX */
-	PAD_CFG_NF(GPP_E21, NONE, PLTRST, NF4),			/* TBT_LSX1_RXD / TBT_1_LSX_RX */
+	/* TODO: inteltool dump seems to not configure these TBT pins, figure out if they're used or not */
+	PAD_NC(GPP_E18, NATIVE),				/* TBT_LSX0_TXD / TBT_0_LSX_TX (unused) */
+	PAD_NC(GPP_E19, NATIVE),				/* TBT_LSX0_RXD / TBT_0_LSX_RX (unused) */
+	PAD_NC(GPP_E20, NATIVE),				/* TBT_LSX1_TXD / TBT_1_LSX_TX (unused) */
+	PAD_NC(GPP_E21, NATIVE),				/* TBT_LSX1_RXD / TBT_1_LSX_RX (unused) */
 	PAD_NC(GPP_E22, NONE),
 	PAD_NC(GPP_E23, NONE),
 
