@@ -58,14 +58,13 @@ chip soc/intel/alderlake
 				end
 			end
 		end
+		# One Hayden Bridge retimer per Type-C port; SOC_DG_BB_FORCE_PWR
+		# (GPP_E4) force-powers all of them.
 		device ref tcss_dma0 on
 			chip drivers/intel/usb4/retimer
 				use tcss_usb3_port1 as dfp[0].typec_port
-				register "dfp[0].power_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_E4)"
-				device generic 0 on end
-			end
-			chip drivers/intel/usb4/retimer
 				use tcss_usb3_port2 as dfp[1].typec_port
+				register "dfp[0].power_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_E4)"
 				register "dfp[1].power_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_E4)"
 				device generic 0 on end
 			end
@@ -73,11 +72,8 @@ chip soc/intel/alderlake
 		device ref tcss_dma1 on
 			chip drivers/intel/usb4/retimer
 				use tcss_usb3_port3 as dfp[0].typec_port
-				register "dfp[0].power_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_E4)"
-				device generic 0 on end
-			end
-			chip drivers/intel/usb4/retimer
 				use tcss_usb3_port4 as dfp[1].typec_port
+				register "dfp[0].power_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_E4)"
 				register "dfp[1].power_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_E4)"
 				device generic 0 on end
 			end
