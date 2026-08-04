@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 
 #include <acpi/acpi.h>
+#include <mainboard/framework/common/ec.h>
 
 DefinitionBlock(
 	"dsdt.aml",
@@ -22,4 +23,6 @@ DefinitionBlock(
 	}
 
 	#include <southbridge/intel/common/acpi/sleepstates.asl>
+
+	#include <mainboard/framework/common/ec.asl>
 }
