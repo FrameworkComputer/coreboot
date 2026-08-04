@@ -5,6 +5,28 @@ chip soc/intel/alderlake
 		[PchSerialIoIndexUART0] = PchSerialIoSkipInit,
 	}"
 
+	# Vendor FADT sets "Low Power S0 Idle" and ships an LPIT
+	register "s0ix_enable" = "true"
+
+	# Enable Enhanced Intel SpeedStep
+	register "eist_enable" = "true"
+
+	# Thermal: throttle 8C below Tjmax
+	register "tcc_offset" = "8"
+
+	# System Agent Geyserville (memory power management)
+	register "sagv" = "SaGv_Enabled"
+
+	# GPE0 routing. Only three groups can be mapped, and every pad that
+	# declares a wake-capable GpioInt() needs its group here:
+	#   GPP_B  touchpad     (GPP_B3  / SOC_TP_INT#)
+	#   GPP_D  EC           (GPP_D3  / SOC_EC_INT#)
+	#   GPP_F  touchscreen  (GPP_F13 / TS_INT#, touch SKUs only)
+	# GPP_E holds no wake sources on this board.
+	register "pmc_gpe0_dw0" = "GPP_B"
+	register "pmc_gpe0_dw1" = "GPP_D"
+	register "pmc_gpe0_dw2" = "GPP_F"
+
 	device domain 0 on
 		subsystemid 0xf111 0x0002 inherit
 
