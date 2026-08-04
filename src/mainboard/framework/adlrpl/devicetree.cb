@@ -183,11 +183,16 @@ chip soc/intel/alderlake
 			end
 			smbios_slot_desc "SlotTypeM2Socket3" "SlotLengthOther" "M.2/M 2280 (JSSD)" "SlotDataBusWidth4X"
 		end
+		# WiFi: discrete PCIe module in M.2/E 2230 (JWLAN) slot
 		device ref pcie_rp9 on
 			register "pch_pcie_rp[PCH_RP(9)]" = "{
 				.clk_src = 4,
 				.clk_req = 4,
 			}"
+			chip drivers/wifi/generic
+				register "wake" = "GPE0_PME_B0"
+				device generic 0 on end
+			end
 			smbios_slot_desc "SlotTypeM2Socket1_SD" "SlotLengthOther" "M.2/E 2230 (JWLAN)" "SlotDataBusWidth1X"
 		end
 		device ref pch_espi on
