@@ -82,7 +82,7 @@ static const struct pad_config gpio_table[] = {
 	/* ------- GPIO Group GPP_H ------- */
 	PAD_NC(GPP_H0, NONE),					/* GPP_H0 / SOC_GPP_H0 (Strap, NC) */
 	PAD_NC(GPP_H1, NONE),					/* TODO: GPP_H1 / SOC_GPP_H1 (Strap, probably NC) */
-	PAD_NC(GPP_H2, NONE),					/* TODO: GPP_H2 / RTD3_WLAN_PLT_RST# - UC14
+	PAD_NC(GPP_H2, NONE),					/* TODO: GPP_H2 / RTD3_WLAN_PLT_RST# - UC14 */
 	PAD_NC(GPP_H3, NONE),
 	PAD_CFG_NF(GPP_H4, NONE, PLTRST, NF1),			/* I2C0_SDA / I2C_0_SDA */
 	PAD_CFG_NF(GPP_H5, NONE, PLTRST, NF1),			/* I2C0_SCL / I2C_0_SCL */
