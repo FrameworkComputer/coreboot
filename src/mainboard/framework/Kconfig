@@ -21,6 +21,26 @@ config FRAMEWORK_COMMON_CFR
 	def_bool y
 	select DRIVERS_OPTION_CFR_ENABLED if PAYLOAD_EDK2 && SMMSTORE
 
+config FRAMEWORK_LAPTOP12
+	bool
+	help
+	  Framework Laptop 12 family.
+
+config FRAMEWORK_LAPTOP13
+	bool
+	help
+	  Framework Laptop 13 family.
+
+config FRAMEWORK_LAPTOP16
+	bool
+	help
+	  Framework Laptop 16 family.
+
+config FRAMEWORK_DESKTOP
+	bool
+	help
+	  Framework Laptop Desktop family.
+
 config FRAMEWORK_TOUCHSCREEN_STYLUS
 	bool
 	help
