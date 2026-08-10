@@ -1,6 +1,14 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 
 #include <device/azalia_device.h>
+#include <mainboard/framework/common/hda.h>
+
+const struct framework_audio_board_codec framework_audio_board_codec = {
+	.vendor_id	= 0x10ec0285,
+	.address	= 0,
+	.ssid_classic	= 0xf111010f,
+	.ssid_pro	= 0xf111000f,
+};
 
 static const u32 realtek_alc285_verbs[] = {
 	/*
