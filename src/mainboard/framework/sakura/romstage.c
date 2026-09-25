@@ -4,7 +4,10 @@
 #include <soc/romstage.h>
 
 /*
- * LPDDR5x LPCAMM2 module, use same config as camm_t3_mem_config on ptl_rvp
+ * LPDDR5x LPCAMM2 module. DQ swizzle taken from the LA-Q401P schematic
+ * (SoC page 9, LPCAMM2 connector page 24). It matches Intel's PTL-UH
+ * "CAMM BEP" reference table, not the T3 RVP table used by ptlrvp:
+ * channels 3, 5, 6 and 7 differ. DQS byte map is identical to both.
  */
 void mainboard_memory_init_params(FSPM_UPD *mupd)
 {
@@ -25,24 +28,24 @@ void mainboard_memory_init_params(FSPM_UPD *mupd)
 				.dq1 = { 12, 13, 15, 14,  8, 11,  9, 10 },
 			},
 			.ddr3 = {
-				.dq0 = { 14, 15, 12, 13, 10,  8, 11,  9 },
-				.dq1 = {  4,  6,  7,  5,  1,  3,  0,  2 },
+				.dq0 = { 14, 15, 12, 13, 10,  8,  9, 11 },
+				.dq1 = {  4,  6,  7,  5,  1,  3,  2,  0 },
 			},
 			.ddr4 = {
 				.dq0 = {  3,  0,  2,  1,  6,  7,  4,  5 },
 				.dq1 = { 13, 12, 15, 14,  8, 10, 11,  9 },
 			},
 			.ddr5 = {
-				.dq0 = { 10,  8, 11,  9, 13, 15, 12, 14 },
+				.dq0 = { 10,  8, 11,  9, 13, 15, 14, 12 },
 				.dq1 = {  2,  1,  3,  0,  7,  6,  5,  4 },
 			},
 			.ddr6 = {
-				.dq0 = {  3,  1,  2,  0,  5,  7,  4,  6 },
-				.dq1 = { 12, 14, 15, 13,  9, 10, 11,  8 },
+				.dq0 = {  3,  1,  2,  0,  6,  7,  4,  5 },
+				.dq1 = { 12, 13, 15, 14,  9, 10, 11,  8 },
 			},
 			.ddr7 = {
-				.dq0 = {  8,  9, 10, 11, 12, 13, 14, 15 },
-				.dq1 = {  5,  6,  7,  4,  2,  1,  3,  0 },
+				.dq0 = {  9,  8, 10, 11, 12, 15, 14, 13 },
+				.dq1 = {  5,  6,  7,  4,  0,  1,  3,  2 },
 			},
 		},
 
