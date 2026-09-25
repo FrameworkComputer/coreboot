@@ -223,6 +223,8 @@ static void mem_init_spd_upds(FSP_M_CONFIG *mem_cfg, const struct mem_channel_da
 		}
 		*disable_channel_ptr = !enable_channel;
 	}
+
+	mem_cfg->DisableMc1Ch3 = 1;
 }
 
 static void mem_init_dq_dqs_upds(void *upds[MRC_CHANNELS], const void *map, size_t upd_size,
