@@ -1,0 +1,10 @@
+## SPDX-License-Identifier: GPL-2.0-only
+
+config DRIVERS_I2C_PAC194X
+	bool
+	default n
+	help
+	  Microchip PAC194x/PAC195x multi-channel power monitor. Probes the
+	  chip at init and describes it to the OS with the Microchip ACPI
+	  _HID and configuration _DSM, so the Windows EMI driver and the
+	  Linux pac1944 IIO driver bind without further setup.
