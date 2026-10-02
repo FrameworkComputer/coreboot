@@ -191,9 +191,38 @@ chip soc/intel/pantherlake
 			end
 		end
 
-		# Power monitor (PAC1954T) - not populated on mass production
 		device ref i2c3 on
+			# Power monitors: two PAC1954T on the SoC I2C3 bus. Not populated
+			# on mass-production units; the driver probes for the chips and
+			# only exposes the ones that answer. Rail names and shunt values
+			# follow the vendor firmware's MCHP1940 _DSM tables.
 			register "serial_io_i2c_mode[PchSerialIoIndexI2C3]" = "PchSerialIoPci"
+			chip drivers/i2c/pac194x
+				register "desc" = ""PAC1954 Power Monitor 1""
+				register "uid" = "1"
+				register "rail_name[0]" = ""CPU_+5V_BULK_DRAM""
+				register "shunt_uohm[0]" = "5000"
+				register "rail_name[1]" = ""CPU_+13.5VB_VCCCORE""
+				register "shunt_uohm[1]" = "10000"
+				register "rail_name[2]" = ""CPU_+13.5VB_VCCSA""
+				register "shunt_uohm[2]" = "10000"
+				register "rail_name[3]" = ""+13.5VB""
+				register "shunt_uohm[3]" = "2000"
+				device i2c 10 on end
+			end
+			chip drivers/i2c/pac194x
+				register "desc" = ""PAC1954 Power Monitor 2""
+				register "uid" = "2"
+				register "rail_name[0]" = ""CPU_+13.5VB_VCCGT""
+				register "shunt_uohm[0]" = "10000"
+				register "rail_name[1]" = ""DISPLAY_+13.5VB_EDP""
+				register "shunt_uohm[1]" = "10000"
+				register "rail_name[2]" = ""DISPLAY_+3VS_EDP""
+				register "shunt_uohm[2]" = "10000"
+				register "rail_name[3]" = ""CPU_+13.5VB_VCCLPECORE""
+				register "shunt_uohm[3]" = "10000"
+				device i2c 11 on end
+			end
 		end
 
 
