@@ -558,7 +558,7 @@
  * +------------------+---------+-----+
  * | Pad Start Number |    219  | 220 |
  * +------------------+---------+-----+
- * | Pad End Number   |    245  | 246 |
+ * | Pad End Number   |    245  | 245 |
  * +------------------+---------+-----+
  */
 #define GPP_D00			INC(GPP_ISHI3C0_CLK_LPBK)
@@ -587,9 +587,12 @@
 #define GPP_D23			INC(GPP_D22)
 #define GPP_D24			INC(GPP_D23)
 #define GPP_D25			INC(GPP_D24)
+#if CONFIG(SOC_INTEL_WILDCATLAKE)
+#define NUM_GRP_D_PADS		(GPP_D25 - GPP_D00 + 1)
+#else
 #define GPP_ISDI3C1_CLK_LPBK	INC(GPP_D25)
-
 #define NUM_GRP_D_PADS		(GPP_ISDI3C1_CLK_LPBK - GPP_D00 + 1)
+#endif
 #define NUM_GPP_D_PADS		(GPP_D25 - GPP_D00 + 1)
 
 /*
@@ -598,12 +601,16 @@
  * +------------------+---------+-----+
  * |                  | PTL-UH/H| WCL |
  * +------------------+---------+-----+
- * | Pad Start Number |    246  | 247 |
+ * | Pad Start Number |    246  | 246 |
  * +------------------+---------+-----+
- * | Pad End Number   |    263  | 264 |
+ * | Pad End Number   |    263  | 263 |
  * +------------------+---------+-----+
  */
+#if CONFIG(SOC_INTEL_WILDCATLAKE)
+#define GPP_VGPIO0		INC(GPP_D25)
+#else
 #define GPP_VGPIO0		INC(GPP_ISDI3C1_CLK_LPBK)
+#endif
 #define GPP_VGPIO5		INC(GPP_VGPIO0)
 #define GPP_VGPIO30		INC(GPP_VGPIO5)
 #define GPP_VGPIO31		INC(GPP_VGPIO30)
