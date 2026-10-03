@@ -116,8 +116,8 @@ const char *const wildcatlake_pch_group_f_names[] = {
 	"GPP_F21",			"n/a",				"n/a",			"n/a",			"n/a",			"n/a",		"n/a",	"n/a",	"n/a",
 	"GPP_F22",			"n/a",				"n/a",			"THC1_DSYNC",		"n/a",			"n/a",		"n/a",	"n/a",	"ISH_GP8A",
 	"GPP_F23",			"n/a",				"n/a",			"n/a",			"n/a",			"n/a",		"n/a",	"n/a",	"ISH_GP9A",
-	"GPP_THC1_GSPI1_CLK_LPBK",	"GPP_THC1_GSPI1_CLK_LPBK",	"n/a",			"n/a",			"n/a",			"n/a",		"n/a",	"n/a",	"n/a",
-	"GPP_GSPI0_CLK_LOOPBK",		"GPP_GSPI0_CLK_LOOPBK",		"n/a",			"n/a",			"n/a",			"n/a",		"n/a",	"n/a",	"n/a",
+	"GPP_THC1_GSPI1_CLK_LPBK",	"GPP_THC1_GSPI1_CLK_LPBK",	"GPP_THC1_GSPI1_CLK_LPBK",	"GPP_THC1_GSPI1_CLK_LPBK",	"GPP_THC1_GSPI1_CLK_LPBK",	"GPP_THC1_GSPI1_CLK_LPBK",	"GPP_THC1_GSPI1_CLK_LPBK",	"GPP_THC1_GSPI1_CLK_LPBK",	"GPP_THC1_GSPI1_CLK_LPBK",
+	"GPP_GSPI0_CLK_LOOPBK",	"GPP_GSPI0_CLK_LOOPBK",	"GPP_GSPI0_CLK_LOOPBK",	"GPP_GSPI0_CLK_LOOPBK",	"GPP_GSPI0_CLK_LOOPBK",	"GPP_GSPI0_CLK_LOOPBK",	"GPP_GSPI0_CLK_LOOPBK",	"GPP_GSPI0_CLK_LOOPBK",	"GPP_GSPI0_CLK_LOOPBK",
 };
 
 const struct gpio_group wildcatlake_pch_group_f = {
@@ -152,7 +152,7 @@ const char *const wildcatlake_pch_group_e_names[] = {
 	"GPP_E21",			"PMCALERT#",			"n/a",		"n/a",			"n/a",		"n/a",		"n/a",	"n/a",	"n/a",
 	"GPP_E22",			"n/a",				"n/a",		"THC0_DSYNC",		"n/a",		"n/a",		"n/a",	"n/a",	"n/a",
 	"GPP_BOOTHALT_B",		"GPP_BOOTHALT_B",		"n/a",		"n/a",			"n/a",		"n/a",		"n/a",	"n/a",	"n/a",
-	"GPP_THC0_GSPI_CLK_LPBK",	"GPP_THC0_GSPI_CLK_LPBK",	"n/a",		"n/a",			"n/a",		"n/a",		"n/a",	"n/a",	"n/a",
+	"GPP_THC0_GSPI_CLK_LPBK",	"GPP_THC0_GSPI_CLK_LPBK",	"GPP_THC0_GSPI_CLK_LPBK",	"GPP_THC0_GSPI_CLK_LPBK",	"GPP_THC0_GSPI_CLK_LPBK",	"GPP_THC0_GSPI_CLK_LPBK",	"GPP_THC0_GSPI_CLK_LPBK",	"GPP_THC0_GSPI_CLK_LPBK",	"GPP_THC0_GSPI_CLK_LPBK",
 };
 
 const struct gpio_group wildcatlake_pch_group_e = {
@@ -213,10 +213,10 @@ const char *const wildcatlake_pch_group_h_names[] = {
 	"GPP_H22",		"I2C1_SCL",		"I3C1_SCL",		"n/a",			"n/a",		"n/a",	"n/a",	"n/a",	"n/a",
 	"GPP_H23",		"n/a",			"RSVD",			"n/a",			"n/a",		"n/a",	"n/a",	"n/a",	"n/a",
 	"GPP_H24",		"n/a",			"RSVD",			"n/a",			"n/a",		"n/a",	"n/a",	"n/a",	"n/a",
-	"GPP_LPI3C1_CLK_LPBK",	"GPP_LPI3C1_CLK_LPBK",	"n/a",			"n/a",			"n/a",		"n/a",	"n/a",	"n/a",	"n/a",
-	"GPP_LPI3C0_CLK_LPBK",	"GPP_LPI3C0_CLK_LPBK",	"n/a",			"n/a",			"n/a",		"n/a",	"n/a",	"n/a",	"n/a",
-	"GPP_ISHI3C1_CLK_LPBK",	"GPP_ISHI3C1_CLK_LPBK",	"n/a",			"n/a",			"n/a",		"n/a",	"n/a",	"n/a",	"n/a",
-	"GPP_SHD3C_CLK_LPBK",	"GPP_SHD3C_CLK_LPBK",	"n/a",			"n/a",			"n/a",		"n/a",	"n/a",	"n/a",	"n/a",
+	"GPP_LPI3C1_CLK_LPBK",	"GPP_LPI3C1_CLK_LPBK",	"GPP_LPI3C1_CLK_LPBK",	"GPP_LPI3C1_CLK_LPBK",	"GPP_LPI3C1_CLK_LPBK",	"GPP_LPI3C1_CLK_LPBK",	"GPP_LPI3C1_CLK_LPBK",	"GPP_LPI3C1_CLK_LPBK",	"GPP_LPI3C1_CLK_LPBK",
+	"GPP_LPI3C0_CLK_LPBK",	"GPP_LPI3C0_CLK_LPBK",	"GPP_LPI3C0_CLK_LPBK",	"GPP_LPI3C0_CLK_LPBK",	"GPP_LPI3C0_CLK_LPBK",	"GPP_LPI3C0_CLK_LPBK",	"GPP_LPI3C0_CLK_LPBK",	"GPP_LPI3C0_CLK_LPBK",	"GPP_LPI3C0_CLK_LPBK",
+	"GPP_ISHI3C1_CLK_LPBK",	"GPP_ISHI3C1_CLK_LPBK",	"GPP_ISHI3C1_CLK_LPBK",	"GPP_ISHI3C1_CLK_LPBK",	"GPP_ISHI3C1_CLK_LPBK",	"GPP_ISHI3C1_CLK_LPBK",	"GPP_ISHI3C1_CLK_LPBK",	"GPP_ISHI3C1_CLK_LPBK",	"GPP_ISHI3C1_CLK_LPBK",
+	"GPP_SHD3C_CLK_LPBK",	"GPP_SHD3C_CLK_LPBK",	"GPP_SHD3C_CLK_LPBK",	"GPP_SHD3C_CLK_LPBK",	"GPP_SHD3C_CLK_LPBK",	"GPP_SHD3C_CLK_LPBK",	"GPP_SHD3C_CLK_LPBK",	"GPP_SHD3C_CLK_LPBK",	"GPP_SHD3C_CLK_LPBK",
 };
 
 const struct gpio_group wildcatlake_pch_group_h = {
@@ -253,8 +253,8 @@ const char *const wildcatlake_pch_group_a_names[] = {
 	"GPP_SPI0_FLASH_0_CS_B",	"SPI0_FLASH_0_CS_B",	"n/a",			"n/a",	"n/a",	"n/a",	"n/a",	"n/a",
 	"GPP_SPI0_FLASH_1_CS_B",	"SPI0_FLASH_1_CS_B",	"n/a",			"n/a",	"n/a",	"n/a",	"n/a",	"n/a",
 	"GPP_SPI0_CLK",			"SPI0_CLK",		"n/a",			"n/a",	"n/a",	"n/a",	"n/a",	"n/a",
-	"GPP_ESPI_CLK_LPBK",		"ESPI_CLK_LPBK",	"n/a",			"n/a",	"n/a",	"n/a",	"n/a",	"n/a",
-	"GPP_SPI0_CLK_LOOPBK",		"SPI0_CLK_LOOPBK",	"n/a",			"n/a",	"n/a",	"n/a",	"n/a",	"n/a",
+	"GPP_ESPI_CLK_LPBK",	"ESPI_CLK_LPBK",	"ESPI_CLK_LPBK",	"ESPI_CLK_LPBK",	"ESPI_CLK_LPBK",	"ESPI_CLK_LPBK",	"ESPI_CLK_LPBK",	"ESPI_CLK_LPBK",
+	"GPP_SPI0_CLK_LOOPBK",	"SPI0_CLK_LOOPBK",	"SPI0_CLK_LOOPBK",	"SPI0_CLK_LOOPBK",	"SPI0_CLK_LOOPBK",	"SPI0_CLK_LOOPBK",	"SPI0_CLK_LOOPBK",	"SPI0_CLK_LOOPBK",
 };
 
 const struct gpio_group wildcatlake_pch_group_a = {
@@ -333,7 +333,7 @@ const char *const wildcatlake_pch_group_b_names[] = {
 	"GPP_B23",		"TIME_SYNC1",		"n/a",		"n/a",		"ISH_GP6",	"n/a",	"n/a",	"n/a",	"n/a",
 	"GPP_B24",		"RSVD",			"n/a",		"n/a",		"n/a",		"n/a",	"n/a",	"n/a",	"n/a",
 	"GPP_B25",		"RSVD",			"n/a",		"n/a",		"n/a",		"n/a",	"n/a",	"n/a",	"n/a",
-	"GPP_ISHI3C0_CLK_LPBK",	"GPP_ISHI3C0_CLK_LPBK",	"n/a",		"n/a",		"n/a",		"n/a",	"n/a",	"n/a",	"n/a",
+	"GPP_ISHI3C0_CLK_LPBK",	"GPP_ISHI3C0_CLK_LPBK",	"GPP_ISHI3C0_CLK_LPBK",	"GPP_ISHI3C0_CLK_LPBK",	"GPP_ISHI3C0_CLK_LPBK",	"GPP_ISHI3C0_CLK_LPBK",	"GPP_ISHI3C0_CLK_LPBK",	"GPP_ISHI3C0_CLK_LPBK",	"GPP_ISHI3C0_CLK_LPBK",
 };
 
 const struct gpio_group wildcatlake_pch_group_b = {
@@ -380,30 +380,30 @@ const struct gpio_group wildcatlake_pch_group_d = {
 };
 
 const char *const wildcatlake_pch_group_vgpio_names[] = {
-	"GPP_VGPIO0",	"GPP_VGPIO0",
-	"GPP_VGPIO5",	"GPP_VGPIO5",
-	"GPP_VGPIO30",	"GPP_VGPIO30",
-	"GPP_VGPIO31",	"GPP_VGPIO31",
-	"GPP_VGPIO32",	"GPP_VGPIO32",
-	"GPP_VGPIO33",	"GPP_VGPIO33",
-	"GPP_VGPIO34",	"GPP_VGPIO34",
-	"GPP_VGPIO35",	"GPP_VGPIO35",
-	"GPP_VGPIO36",	"GPP_VGPIO36",
-	"GPP_VGPIO37",	"GPP_VGPIO37",
-	"GPP_VGPIO40",	"GPP_VGPIO40",
-	"GPP_VGPIO41",	"GPP_VGPIO41",
-	"GPP_VGPIO42",	"GPP_VGPIO42",
-	"GPP_VGPIO43",	"GPP_VGPIO43",
-	"GPP_VGPIO44",	"GPP_VGPIO44",
-	"GPP_VGPIO45",	"GPP_VGPIO45",
-	"GPP_VGPIO46",	"GPP_VGPIO46",
-	"GPP_VGPIO47",	"GPP_VGPIO47",
+	"GPP_VGPIO0",	"GPP_VGPIO0",	"GPP_VGPIO0",
+	"GPP_VGPIO5",	"GPP_VGPIO5",	"GPP_VGPIO5",
+	"GPP_VGPIO30",	"GPP_VGPIO30",	"GPP_VGPIO30",
+	"GPP_VGPIO31",	"GPP_VGPIO31",	"GPP_VGPIO31",
+	"GPP_VGPIO32",	"GPP_VGPIO32",	"GPP_VGPIO32",
+	"GPP_VGPIO33",	"GPP_VGPIO33",	"GPP_VGPIO33",
+	"GPP_VGPIO34",	"GPP_VGPIO34",	"GPP_VGPIO34",
+	"GPP_VGPIO35",	"GPP_VGPIO35",	"GPP_VGPIO35",
+	"GPP_VGPIO36",	"GPP_VGPIO36",	"GPP_VGPIO36",
+	"GPP_VGPIO37",	"GPP_VGPIO37",	"GPP_VGPIO37",
+	"GPP_VGPIO40",	"GPP_VGPIO40",	"GPP_VGPIO40",
+	"GPP_VGPIO41",	"GPP_VGPIO41",	"GPP_VGPIO41",
+	"GPP_VGPIO42",	"GPP_VGPIO42",	"GPP_VGPIO42",
+	"GPP_VGPIO43",	"GPP_VGPIO43",	"GPP_VGPIO43",
+	"GPP_VGPIO44",	"GPP_VGPIO44",	"GPP_VGPIO44",
+	"GPP_VGPIO45",	"GPP_VGPIO45",	"GPP_VGPIO45",
+	"GPP_VGPIO46",	"GPP_VGPIO46",	"GPP_VGPIO46",
+	"GPP_VGPIO47",	"GPP_VGPIO47",	"GPP_VGPIO47",
 };
 
 const struct gpio_group wildcatlake_pch_group_vgpio = {
 	.display	= "------- GPIO Group VGPIO -------",
-	.pad_count	= ARRAY_SIZE(wildcatlake_pch_group_vgpio_names) / 2,
-	.func_count	= 2,
+	.pad_count	= ARRAY_SIZE(wildcatlake_pch_group_vgpio_names) / 3,
+	.func_count	= 3,
 	.pad_names	= wildcatlake_pch_group_vgpio_names,
 };
 
