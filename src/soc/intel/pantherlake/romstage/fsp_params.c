@@ -358,6 +358,16 @@ static void fill_fspm_vr_config_params(FSP_M_CONFIG *m_cfg,
 	if (config->psys_pmax_watts)
 		m_cfg->PsysPmax = config->psys_pmax_watts * 8;
 
+	/*
+	 * Platform Power Limit 2, i.e. MSR 0x65C[46:32], also in units of
+	 * 1/8 Watt. PsysPowerLimit2 is a separate enable bit that defaults to
+	 * disabled, so the power value alone has no effect.
+	 */
+	if (config->psys_pl2_watts) {
+		m_cfg->PsysPowerLimit2 = 1;
+		m_cfg->PsysPowerLimit2Power = config->psys_pl2_watts * 8;
+	}
+
 	if (!map)
 		return;
 

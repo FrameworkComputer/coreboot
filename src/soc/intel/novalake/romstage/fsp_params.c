@@ -367,6 +367,16 @@ static void fill_fspm_vr_config_params(FSP_M_CONFIG *m_cfg, const config_t *conf
 		if (config->ps3_threshold[i])
 			m_cfg->Ps3Threshold[i] = config->ps3_threshold[i];
 	}
+
+	/*
+	 * Platform Power Limit 2, i.e. MSR 0x65C[46:32], also in units of
+	 * 1/8 Watt. PsysPowerLimit2 is a separate enable bit that defaults to
+	 * disabled, so the power value alone has no effect.
+	 */
+	if (config->psys_pl2_watts) {
+		m_cfg->PsysPowerLimit2 = 1;
+		m_cfg->PsysPowerLimit2Power = config->psys_pl2_watts * 8;
+	}
 }
 
 #if CONFIG(PLATFORM_HAS_EARLY_LOW_BATTERY_INDICATOR)
