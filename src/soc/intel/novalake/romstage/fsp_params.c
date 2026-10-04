@@ -3,7 +3,9 @@
 #include <cpu/intel/common/common.h>
 #include <cpu/x86/msr.h>
 #include <cpu/x86/mtrr.h>
+#include <device/device.h>
 #include <device/pci.h>
+#include <drivers/wifi/generic/wifi.h>
 #include <elog.h>
 #include <fsp/debug.h>
 #include <fsp/fsp_debug_event.h>
@@ -201,6 +203,23 @@ static void fill_fspm_audio_params(FSP_M_CONFIG *m_cfg, const config_t *config)
 	const struct device *dev = find_dev_path(pci_root_bus(), &path);
 	if (is_dev_enabled(dev) && dev->subsystem_vendor && dev->subsystem_device)
 		m_cfg->PchHdaSubSystemIds = dev->subsystem_vendor | (dev->subsystem_device << 16);
+}
+
+static void fill_fspm_cnvi_params(FSP_M_CONFIG *m_cfg, const config_t *config)
+{
+	/*
+	 * CNVi DDR RFI Mitigation. The FSP UPD defaults to enabled, so without
+	 * this the devicetree setting is ignored and it can never be turned off.
+	 */
+#if CONFIG(DRIVERS_WIFI_GENERIC)
+	const struct device_path path[] = {
+		{ .type = DEVICE_PATH_PCI, .pci.devfn = PCI_DEVFN_CNVI_WIFI },
+		{ .type = DEVICE_PATH_GENERIC, .generic.id = 0 } };
+	const struct device *dev = find_dev_nested_path(pci_root_bus(), path,
+							ARRAY_SIZE(path));
+	if (is_dev_enabled(dev))
+		m_cfg->CnviDdrRfim = wifi_generic_cnvi_ddr_rfim_enabled(dev);
+#endif
 }
 
 static void pcie_rp_init(FSP_M_CONFIG *m_cfg, uint32_t en_mask,
@@ -404,6 +423,7 @@ static void soc_memory_init_params(FSP_M_CONFIG *m_cfg, const config_t *config)
 		fill_fspm_ipu_params,
 		fill_fspm_misc_params,
 		fill_fspm_audio_params,
+		fill_fspm_cnvi_params,
 		fill_fspm_pcie_rp_params,
 		fill_fspm_ish_params,
 		fill_fspm_tcss_params,
