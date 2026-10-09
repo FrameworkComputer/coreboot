@@ -124,6 +124,7 @@ chip soc/intel/pantherlake
 				end
 			end
 		end
+		device pci 14.1 alias usb_otg off ops usb_xdci_ops end
 		device pci 14.2 alias pmc_shared_sram off end
 		device pci 14.3 alias cnvi_wifi off ops cnvi_wifi_ops end
 		device pci 14.7 alias cnvi_bluetooth off end

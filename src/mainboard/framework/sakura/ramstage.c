@@ -22,6 +22,13 @@ void mainboard_silicon_init_params(FSP_S_CONFIG *params)
 	 */
 	params->CnviRfResetPinMux = 0x194CE404; /* GPP_F04 */
 	params->CnviClkreqPinMux = 0x394CE605;  /* GPP_F05 */
+
+	/*
+	 * Route the USB2 lines of JUSBC2 (USB2 port index 1) to the xDCI for
+	 * USB gadget mode. This port loses USB2 host functionality, SuperSpeed
+	 * and Thunderbolt are unaffected as they go through TCSS.
+	 */
+	params->PortUsb20SwDeviceModeEnable[1] = 1;
 }
 
 static void mainboard_init(void *chip_info)

@@ -213,6 +213,8 @@ chip soc/intel/pantherlake
 				end
 			end
 		end
+		# xDCI, USB2 of JUSBC2 forced to device mode in ramstage.c
+		device ref usb_otg on end
 
 		device ref cnvi_wifi on
 			register "cnvi_wifi_core" = "true"
