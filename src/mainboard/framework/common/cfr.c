@@ -6,6 +6,10 @@
 #include <mainboard/framework/common/board_host_command.h>
 #include <mainboard/framework/common/ec.h>
 
+#if CONFIG(SOC_INTEL_COMMON_BLOCK_CSE)
+#include <intelblocks/cfr.h>
+#endif
+
 static const struct sm_object ps2_emulation = SM_DECLARE_BOOL({
 	.opt_name	= PS2_EMULATION_OPTION_NAME,
 	.ui_name	= "PS/2 Touchpad Emulation",
@@ -116,8 +120,22 @@ static struct sm_obj_form ec = {
 	},
 };
 
+#if CONFIG(SOC_INTEL_COMMON_BLOCK_CSE)
+static struct sm_obj_form platform = {
+	.ui_name = "Platform",
+	.obj_list = (const struct sm_object *[]) {
+		&me_state,
+		&me_state_counter,
+		NULL
+	},
+};
+#endif
+
 static struct sm_obj_form *sm_root[] = {
 	&ec,
+#if CONFIG(SOC_INTEL_COMMON_BLOCK_CSE)
+	&platform,
+#endif
 	NULL
 };
 
