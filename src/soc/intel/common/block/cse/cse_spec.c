@@ -39,8 +39,11 @@ static void dump_me_status(void *unused)
 	union me_hfsts6 hfsts6;
 	bool manufacturing_mode;
 
-	if (!is_cse_enabled())
+	if (!is_cse_enabled()) {
+		if (CONFIG(SOC_INTEL_CSE_DEBUG_LOGGING))
+			printk(BIOS_DEBUG, "ME: CSE device is hidden or disabled\n");
 		return;
+	}
 
 	hfsts1.data = me_read_config32(PCI_ME_HFSTS1);
 	hfsts2.data = me_read_config32(PCI_ME_HFSTS2);

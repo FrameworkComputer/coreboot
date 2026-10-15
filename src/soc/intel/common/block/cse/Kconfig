@@ -333,6 +333,17 @@ config SOC_INTEL_CSE_LITE_SYNC_IN_RAMSTAGE
 	help
 	 Use this option if CSE RW update needs to be triggered during RAMSTAGE.
 
+config SOC_INTEL_CSE_DEBUG_LOGGING
+	bool "Verbose Intel CSE (CSME) logging"
+	depends on SOC_INTEL_COMMON_BLOCK_CSE
+	default n
+	help
+	  Log additional CSE state to help debug a missing or misbehaving ME:
+	  dump the host firmware status registers early in romstage, report
+	  when the CSE PCI device is hidden, and query the ME firmware version
+	  even without a serial console. If the CSE does not respond, the
+	  version query can add up to 10 seconds of HECI timeouts to boot.
+
 config SOC_INTEL_CSE_HAVE_SPEC_SUPPORT
 	bool
 	depends on SOC_INTEL_COMMON_BLOCK_CSE

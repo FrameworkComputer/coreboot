@@ -113,9 +113,34 @@ static void heci_assign_resource(pci_devfn_t dev, uintptr_t tempbar)
  * default. This is intended for pre-mem usage only where BARs haven't been
  * assigned yet and devices are not enabled.
  */
+static void cse_log_hfsts(void)
+{
+	union me_hfsts1 hfs1;
+
+	if (!is_cse_enabled()) {
+		printk(BIOS_DEBUG, "cse: CSE device is hidden or disabled\n");
+		return;
+	}
+
+	hfs1.data = me_read_config32(PCI_ME_HFSTS1);
+	printk(BIOS_DEBUG, "cse: HFSTS1: 0x%08x HFSTS2: 0x%08x HFSTS3: 0x%08x\n",
+	       hfs1.data, me_read_config32(PCI_ME_HFSTS2),
+	       me_read_config32(PCI_ME_HFSTS3));
+	printk(BIOS_DEBUG, "cse: HFSTS4: 0x%08x HFSTS5: 0x%08x HFSTS6: 0x%08x\n",
+	       me_read_config32(PCI_ME_HFSTS4), me_read_config32(PCI_ME_HFSTS5),
+	       me_read_config32(PCI_ME_HFSTS6));
+	printk(BIOS_DEBUG, "cse: working state %u, operation state %u, operation mode %u, "
+	       "error code %u, init complete %u\n", hfs1.fields.working_state,
+	       hfs1.fields.operation_state, hfs1.fields.operation_mode,
+	       hfs1.fields.error_code, hfs1.fields.fw_init_complete);
+}
+
 void cse_init(uintptr_t tempbar)
 {
 	pci_devfn_t dev = PCH_DEV_CSE;
+
+	if (CONFIG(SOC_INTEL_CSE_DEBUG_LOGGING))
+		cse_log_hfsts();
 
 	/* Check if device enabled */
 	if (!is_cse_enabled())
@@ -984,7 +1009,7 @@ void print_me_fw_version(void *unused)
 	struct me_fw_ver_resp resp = {0};
 
 	/* Ignore if UART debugging is disabled */
-	if (!CONFIG(CONSOLE_SERIAL))
+	if (!CONFIG(CONSOLE_SERIAL) && !CONFIG(SOC_INTEL_CSE_DEBUG_LOGGING))
 		return;
 
 	/*
