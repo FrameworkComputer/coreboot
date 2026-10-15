@@ -108,11 +108,6 @@ static void heci_assign_resource(pci_devfn_t dev, uintptr_t tempbar)
 	pci_or_config16(dev, PCI_COMMAND, PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY);
 }
 
-/*
- * Initialize the CSE device with provided temporary BAR. If BAR is 0 use a
- * default. This is intended for pre-mem usage only where BARs haven't been
- * assigned yet and devices are not enabled.
- */
 static void cse_log_hfsts(void)
 {
 	union me_hfsts1 hfs1;
@@ -135,6 +130,11 @@ static void cse_log_hfsts(void)
 	       hfs1.fields.error_code, hfs1.fields.fw_init_complete);
 }
 
+/*
+ * Initialize the CSE device with provided temporary BAR. If BAR is 0 use a
+ * default. This is intended for pre-mem usage only where BARs haven't been
+ * assigned yet and devices are not enabled.
+ */
 void cse_init(uintptr_t tempbar)
 {
 	pci_devfn_t dev = PCH_DEV_CSE;
