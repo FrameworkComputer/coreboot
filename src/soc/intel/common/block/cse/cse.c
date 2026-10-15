@@ -988,6 +988,11 @@ static enum cb_err get_me_fw_version(struct me_fw_ver_resp *resp)
 	 * 3) It's after DRAM INIT DONE message (taken care of by calling it
 	 *    during ramstage
 	 */
+	if (CONFIG(SOC_INTEL_CSE_DEBUG_LOGGING)) {
+		printk(BIOS_DEBUG, "cse: status before FW version query:\n");
+		cse_log_hfsts();
+	}
+
 	if (!cse_is_hfs1_cws_normal() || !cse_is_hfs1_com_normal())
 		return CB_ERR;
 
@@ -1476,6 +1481,11 @@ static void cse_set_state(struct device *dev)
 							!send ? "success" : "failure");
 	printk(BIOS_DEBUG, "HECI: ME state change result %s!\n",
 							!result ? "success" : "failure");
+
+	if (CONFIG(SOC_INTEL_CSE_DEBUG_LOGGING)) {
+		printk(BIOS_DEBUG, "cse: status after ME state change:\n");
+		cse_log_hfsts();
+	}
 
 	/*
 	 * Reset if the result was successful, or if the send failed as some older
