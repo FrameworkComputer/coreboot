@@ -1479,7 +1479,9 @@ static void cse_set_state(struct device *dev)
 
 	printk(BIOS_DEBUG, "HECI: ME state change send %s!\n",
 							!send ? "success" : "failure");
-	printk(BIOS_DEBUG, "HECI: ME state change result %s!\n",
+	/* The reply is only valid if the send succeeded */
+	if (!send)
+		printk(BIOS_DEBUG, "HECI: ME state change result %s!\n",
 							!result ? "success" : "failure");
 
 	if (CONFIG(SOC_INTEL_CSE_DEBUG_LOGGING)) {
