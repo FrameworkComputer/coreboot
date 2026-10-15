@@ -1402,7 +1402,7 @@ static void cse_set_state(struct device *dev)
 
 	struct me_disable_reply disable_reply;
 
-	size_t disable_reply_size;
+	size_t disable_reply_size = sizeof(disable_reply);
 
 	/* (CS)ME Enable Command */
 	struct me_enable_command {
@@ -1420,7 +1420,7 @@ static void cse_set_state(struct device *dev)
 
 	struct me_enable_reply enable_reply;
 
-	size_t enable_reply_size;
+	size_t enable_reply_size = sizeof(enable_reply);
 
 	/* Function Start */
 
