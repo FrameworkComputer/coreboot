@@ -24,9 +24,9 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC(GPP_V10, NONE),
 	PAD_NC(GPP_V11, NONE),						/* SLP_LAN# NC, just TP18 */
 	PAD_CFG_NF_IOSTANDBY_IGNORE(GPP_V12, NONE, DEEP, NF1),		/* WAKE# / SOC_WL_WAKE# (1.8V level) */
-	PAD_NC(GPP_V13, NONE),						/* Does not exist on schematic */
+	PAD_CFG_NF(GPP_V13, NONE, DEEP, NF1),				/* H_CATERR# (2.2k pull-up RC158) */
 	PAD_NC(GPP_V14, NONE),						/* Does not exist on schematic */
-	PAD_NC(GPP_V15, NONE),						/* Does not exist on schematic */
+	PAD_CFG_NF(GPP_V15, NONE, DEEP, NF1),				/* H_THERMTRIP# (2.2k pull-up) */
 	PAD_CFG_NF(GPP_V16, NONE, DEEP, NF1),				/* VCCST_EN (VCC sustain) */
 	PAD_CFG_GPO(GPP_V17, 0, DEEP),					/* RT_GPIO6_CTRL_CPU (pulled high to 1.8VS via 10k and GND via 100k, to Retimer) */
 
