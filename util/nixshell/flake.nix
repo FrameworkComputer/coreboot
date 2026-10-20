@@ -56,7 +56,6 @@ let
         perl
         pkg-config
         python3
-        qemu
         rustup
         sharutils
         shellcheck
