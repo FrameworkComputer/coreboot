@@ -22,6 +22,11 @@ void mainboard_silicon_init_params(FSP_S_CONFIG *params)
 	 */
 	params->CnviRfResetPinMux = 0x194CE404; /* GPP_F04 */
 	params->CnviClkreqPinMux = 0x394CE605;  /* GPP_F05 */
+
+	/* TEST: disable VR_ALERT# throttling and ForcePr/VrAlert demotion */
+	params->PchPmVrAlert = 0;
+	params->VrAlertDemotion = 0;
+	params->ForcePrDemotion = 0;
 }
 
 static void mainboard_init(void *chip_info)
