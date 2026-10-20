@@ -27,6 +27,12 @@ chip soc/intel/pantherlake
 	# TCC activation offset = Tjmax. Match vendor BIOS
 	register "tcc_offset" = "0"
 
+	# IA VR TDC in iPL2 mode with the FSP default 1 s window, like the vendor
+	# BIOS. The chipset sets IRMS with a 28 s window, but this die has no IRMS
+	# limit (IrmsSupported = 0 in vendor setup).
+	register "tdc_mode[VR_DOMAIN_IA]" = "TDC_IPL2"
+	register "tdc_time_window_ms[VR_DOMAIN_IA]" = "0"
+
 	# GPE0 DW routing: which GPIO communities can generate GPE/wake events.
 	# GPP_A covers the EC HID mediakeys interrupt (A09)
 	# GPP_E covers the touchscreen interrupt (E18)
