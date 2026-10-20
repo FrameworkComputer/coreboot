@@ -18,6 +18,7 @@
 #include <intelblocks/pmclib.h>
 #include <option.h>
 #include <smbios.h>
+#include <smp/node.h>
 #include <soc/cpu.h>
 #include <soc/msr.h>
 #include <soc/pci_devs.h>
@@ -82,10 +83,17 @@ static void configure_misc(void)
 	/* Enable PROCHOT (bidirectional), lock the PROCHOT configuration and
 	   enable Power Performance Platform Override */
 	msr = rdmsr(MSR_POWER_CTL);
+	if (boot_cpu())
+		printk(BIOS_INFO, "TEST: POWER_CTL before PROCHOT lock = 0x%08x\n", msr.lo);
+	/* TEST: clear ProchotResponse (bit 22) while PROCHOT config is still unlocked */
+	msr.lo &= ~(1 << 22);
 	msr.lo |= ENABLE_BIDIR_PROCHOT;
 	msr.lo |= POWER_CTL_PROCHOT_LOCK;
 	msr.lo |= PWR_PERF_PLATFORM_OVR;
 	wrmsr(MSR_POWER_CTL, msr);
+	if (boot_cpu())
+		printk(BIOS_INFO, "TEST: POWER_CTL after PROCHOT lock = 0x%08x\n",
+		       rdmsr(MSR_POWER_CTL).lo);
 }
 
 enum core_type get_soc_cpu_type(void)

@@ -2,9 +2,11 @@
 
 #include <bootstate.h>
 #include <console/console.h>
+#include <cpu/x86/msr.h>
 #include <delay.h>
 #include <device/device.h>
 #include <ec/ec.h>
+#include <intelblocks/msr.h>
 #include <intelblocks/systemagent.h>
 #include <mainboard/ramstage.h>
 #include <soc/ramstage.h>
@@ -171,5 +173,13 @@ static void pcode_readback(void *unused)
 
 /* FSP-S (which sends the disables) has run by the time devices are enumerated */
 BOOT_STATE_INIT_ENTRY(BS_DEV_ENUMERATE, BS_ON_ENTRY, pcode_readback, NULL);
+
+/* TEST: check that POWER_CTL bit 22 (ProchotResponse) stays clear after FSP-S and MP init */
+static void power_ctl_readback(void *unused)
+{
+	printk(BIOS_INFO, "TEST: POWER_CTL before payload = 0x%08x\n", rdmsr(MSR_POWER_CTL).lo);
+}
+
+BOOT_STATE_INIT_ENTRY(BS_PAYLOAD_LOAD, BS_ON_ENTRY, power_ctl_readback, NULL);
 
 struct chip_operations mainboard_ops = {.init = mainboard_init};
