@@ -4,7 +4,7 @@
 
 /* Pin configs verified against a codec dump from vendor BIOS 3.20 T01 */
 static const u32 idt_92hd95_verbs[] = {
-	AZALIA_SUBVENDOR(0, 0xf1110002),
+	AZALIA_SUBVENDOR(0, CONFIG_FRAMEWORK_ADLRPL_HDA_SUBSYSTEM_ID),
 	AZALIA_RESET(1),
 	/* Headphone jack */
 	AZALIA_PIN_CFG(0, 0x0a, AZALIA_PIN_DESC(
@@ -166,7 +166,7 @@ struct azalia_codec mainboard_azalia_codecs[] = {
 	{
 		.name         = "IDT 92HD95",
 		.vendor_id    = 0x111d7695,
-		.subsystem_id = 0xf1110002,
+		.subsystem_id = CONFIG_FRAMEWORK_ADLRPL_HDA_SUBSYSTEM_ID,
 		.address      = 0,
 		.verbs        = idt_92hd95_verbs,
 		.verb_count   = ARRAY_SIZE(idt_92hd95_verbs),
@@ -174,6 +174,14 @@ struct azalia_codec mainboard_azalia_codecs[] = {
 	{
 		.name         = "Intel Alderlake-P HDMI",
 		.vendor_id    = 0x8086281c,
+		.subsystem_id = 0x80860101,
+		.address      = 2,
+		.verbs        = intel_adl_hdmi_verbs,
+		.verb_count   = ARRAY_SIZE(intel_adl_hdmi_verbs),
+	},
+	{
+		.name         = "Intel Raptorlake-P HDMI",
+		.vendor_id    = 0x8086281f,
 		.subsystem_id = 0x80860101,
 		.address      = 2,
 		.verbs        = intel_adl_hdmi_verbs,

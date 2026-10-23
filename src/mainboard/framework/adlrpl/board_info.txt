@@ -1,5 +1,5 @@
 Vendor name: Framework
-Board name: Laptop (12th Gen Intel Core)
+Board name: Laptop 13 (12th/13th Gen Intel Core)
 Board URL: https://frame.work/laptop13
 Category: laptop
 ROM protocol: SPI

@@ -29,16 +29,42 @@ config BOARD_FRAMEWORK_HX30
 	select BOARD_FRAMEWORK_ADLRPL_COMMON
 	select SOC_INTEL_ALDERLAKE_PCH_P
 
+config BOARD_FRAMEWORK_IRIS
+	select BOARD_FRAMEWORK_ADLRPL_COMMON
+	select SOC_INTEL_ALDERLAKE_PCH_P
+	select SOC_INTEL_RAPTORLAKE
+
 if BOARD_FRAMEWORK_ADLRPL_COMMON
 
 config MAINBOARD_DIR
 	default "framework/adlrpl"
 
+config VARIANT_DIR
+	default "hx30" if BOARD_FRAMEWORK_HX30
+	default "iris" if BOARD_FRAMEWORK_IRIS
+
+config OVERRIDE_DEVICETREE
+	default "variants/\$(CONFIG_VARIANT_DIR)/overridetree.cb"
+
+# Both variants share one VBT
+config INTEL_GMA_VBT_FILE
+	default "src/mainboard/\$(MAINBOARDDIR)/data.vbt"
+
 config MAINBOARD_PART_NUMBER
 	default "hx30" if BOARD_FRAMEWORK_HX30
+	default "Iris" if BOARD_FRAMEWORK_IRIS
 
 config MAINBOARD_SMBIOS_PRODUCT_NAME
 	default "Laptop (12th Gen Intel Core)" if BOARD_FRAMEWORK_HX30
+	default "Laptop (13th Gen Intel Core)" if BOARD_FRAMEWORK_IRIS
+
+config FRAMEWORK_ADLRPL_HDA_SUBSYSTEM_ID
+	hex
+	default 0xf1110002 if BOARD_FRAMEWORK_HX30
+	default 0xf1110003 if BOARD_FRAMEWORK_IRIS
+	help
+	  Codec subsystem ID. Must match the PCI subsystem ID set in the
+	  variant's overridetree.cb.
 
 config MAINBOARD_FAMILY
 	default "13in Laptop"

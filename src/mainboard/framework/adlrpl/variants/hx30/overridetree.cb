@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+chip soc/intel/alderlake
+	device domain 0 on
+		subsystemid 0xf111 0x0002 inherit
+	end
+end

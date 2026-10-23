@@ -2,3 +2,6 @@
 
 config BOARD_FRAMEWORK_HX30
 	bool "Laptop 13 (12th Gen Intel Core)"
+
+config BOARD_FRAMEWORK_IRIS
+	bool "Laptop 13 (13th Gen Intel Core)"

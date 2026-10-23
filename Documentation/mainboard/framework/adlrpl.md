@@ -1,4 +1,4 @@
-# Framework Laptop 13 12th Gen Intel Core (hx30)
+# Framework Laptop 13 12th/13th Gen Intel Core (hx30 / Iris)
 
 ## Support Status
 
@@ -10,8 +10,10 @@ All mainboards sold to customers ship with BootGuard enabled. While it is
 possible for end users to build the image with publicly available source and
 binaries, flashing will not result in a bootable system.
 
-Alderlake and Raptorlake are pin-compatible, so in theory this port can run on
-both. So far it has only been tested on Alderlake systems.
+The 12th Gen (Alder Lake-P, hx30) and 13th Gen (Raptor Lake-P, Iris) models
+use the same mainboard with a different CPU. There is one build target per
+model: they differ only in the PCI and codec subsystem ID (0xf111:0x0002 vs
+0xf111:0x0003), the SMBIOS product name, and the Raptor Lake SoC option.
 
 Everything listed under Specs has been tested and works with coreboot, unless
 marked as untested or listed below.
@@ -27,6 +29,8 @@ marked as untested or listed below.
 - CPU (full processor specs available at <https://ark.intel.com>)
     - 12th Gen Intel Core (Alder Lake-P), one of:
       - i5-1240P, i7-1260P, i7-1280P
+    - 13th Gen Intel Core (Raptor Lake-P), one of:
+      - i5-1340P, i7-1360P, i7-1370P
 - EC
     - Microchip MEC1521 with Framework forked Chrome EC firmware
     - Backlit keyboard, with standard PS/2 keycodes and I2C HID hotkeys
@@ -74,7 +78,8 @@ The following commands will build a working image:
 make distclean # Note: this will remove your current config, if it exists.
 touch .config
 ./util/scripts/config --enable VENDOR_FRAMEWORK
-./util/scripts/config --enable BOARD_FRAMEWORK_HX30
+./util/scripts/config --enable BOARD_FRAMEWORK_HX30 # 12th Gen
+# or: ./util/scripts/config --enable BOARD_FRAMEWORK_IRIS # 13th Gen
 make olddefconfig
 make -j$(nproc)
 ```
