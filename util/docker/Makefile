@@ -108,15 +108,25 @@ endif
 $(DOCKER_CCACHE):
 	@mkdir -p $@
 
+# SDK image tag to run. Unless COREBOOT_IMAGE_TAG was set explicitly, fall back
+# to the newest local coreboot-sdk image when the default tag isn't present.
+local_sdk_tag = $(shell $(DOCKER) image inspect coreboot/coreboot-sdk:$(COREBOOT_IMAGE_TAG) >/dev/null 2>&1 && \
+	echo $(COREBOOT_IMAGE_TAG) || \
+	$(DOCKER) images --format '{{.Tag}}' coreboot/coreboot-sdk | grep -v '<none>' | sort -r | head -n1)
+DOCKER_SDK_TAG = $(if $(filter file,$(origin COREBOOT_IMAGE_TAG)),$(or $(local_sdk_tag),$(COREBOOT_IMAGE_TAG)),$(COREBOOT_IMAGE_TAG))
+
 # Only allocate a TTY when stdin is one, so targets also work from scripts and CI.
 DOCKER_TTY ?= $(shell [ -t 0 ] && echo -it)
 docker-run-local: test-docker $(DOCKER_CCACHE)
+	$(eval sdk_tag := $(DOCKER_SDK_TAG))
+	$(if $(filter-out $(COREBOOT_IMAGE_TAG),$(sdk_tag)), \
+		$(warning coreboot-sdk:$(COREBOOT_IMAGE_TAG) not found locally, using coreboot-sdk:$(sdk_tag)))
 	$(DOCKER) run $(DOCKER_TTY) --rm \
 		--volume $(DOCKER_CCACHE):/home/coreboot/.ccache \
 		--volume $(top):/home/coreboot/coreboot \
 		--env HOME=/home/coreboot \
 		--user $(UID):$(GID) \
-		coreboot/coreboot-sdk:$(COREBOOT_IMAGE_TAG) \
+		coreboot/coreboot-sdk:$(sdk_tag) \
 		/bin/bash -c 'cd $${HOME}/coreboot && $(DOCKER_RUN_LOCAL)'
 
 docker-build-coreboot: docker-run-local
