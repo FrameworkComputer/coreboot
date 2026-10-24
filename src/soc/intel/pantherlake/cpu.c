@@ -4,6 +4,7 @@
 #include <cpu/cpu.h>
 #include <cpu/intel/common/common.h>
 #include <cpu/intel/microcode.h>
+#include <cpu/intel/msr.h>
 #include <cpu/intel/smm_reloc.h>
 #include <cpu/intel/turbo.h>
 #include <cpu/x86/lapic.h>
@@ -100,6 +101,14 @@ bool soc_is_nominal_freq_supported(void)
 	return true;
 }
 
+/* IA32_TME_ACTIVATE bit 1 is set once firmware has enabled TME */
+static bool is_tme_activated(void)
+{
+	msr_t msr = rdmsr(MSR_TME_ACTIVATE);
+
+	return !!(msr.lo & BIT(1));
+}
+
 static void enable_x2apic(void)
 {
 	if (!CONFIG(X2APIC_LATE_WORKAROUND))
@@ -142,7 +151,13 @@ void soc_core_init(struct device *cpu)
 	/* Set core type in struct cpu_info */
 	set_dev_core_type();
 
-	if (get_uint_option("intel_tme", CONFIG(INTEL_TME)) && is_tme_supported())
+	/*
+	 * Only activate per-core MKTME when TME was actually enabled during
+	 * memory init. If the mainboard or FSP left TME off, writing the core
+	 * activation MSR hangs the AP bring-up.
+	 */
+	if (get_uint_option("intel_tme", CONFIG(INTEL_TME)) && is_tme_supported() &&
+	    is_tme_activated())
 		set_tme_core_activate();
 
 	if (CONFIG(DROP_CPU_FEATURE_PROGRAM_IN_FSP)) {
