@@ -108,8 +108,10 @@ endif
 $(DOCKER_CCACHE):
 	@mkdir -p $@
 
+# Only allocate a TTY when stdin is one, so targets also work from scripts and CI.
+DOCKER_TTY ?= $(shell [ -t 0 ] && echo -it)
 docker-run-local: test-docker $(DOCKER_CCACHE)
-	$(DOCKER) run -it --rm \
+	$(DOCKER) run $(DOCKER_TTY) --rm \
 		--volume $(DOCKER_CCACHE):/home/coreboot/.ccache \
 		--volume $(top):/home/coreboot/coreboot \
 		--env HOME=/home/coreboot \
