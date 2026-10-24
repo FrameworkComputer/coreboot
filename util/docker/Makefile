@@ -123,6 +123,12 @@ docker-build-coreboot: docker-run-local
 docker-build-coreboot: override DOCKER_RUN_LOCAL := \
 	make clean && make $(BUILD_CMD)
 
+# Generate .config from a defconfig file, then build. Pass DEFCONFIG=<file>.
+DEFCONFIG ?= defconfig
+docker-build-defconfig: docker-run-local
+docker-build-defconfig: override DOCKER_RUN_LOCAL := \
+	make clean && cp $(DEFCONFIG) .config && make olddefconfig && make -j$$(nproc)
+
 docker-abuild: docker-run-local
 docker-abuild: override DOCKER_RUN_LOCAL := \
 	make clean && util/abuild/abuild $(ABUILD_ARGS)
@@ -208,6 +214,8 @@ help:
 	@echo "Commands for using docker images"
 	@echo "  docker-build-coreboot        - Build coreboot under coreboot-sdk"
 	@echo "      <BUILD_CMD=target> "
+	@echo "  docker-build-defconfig       - Build coreboot from a defconfig under coreboot-sdk"
+	@echo "      <DEFCONFIG=file> "
 	@echo "  docker-abuild                - Run abuild under coreboot-sdk"
 	@echo "      <ABUILD_ARGS='-a -B'>"
 	@echo "  docker-what-jenkins-does     - Run 'what-jenkins-does' target"
