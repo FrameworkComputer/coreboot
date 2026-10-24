@@ -203,8 +203,8 @@ static const struct pad_config gpio_table[] = {
 	PAD_CFG_NF(GPP_C17, NONE, DEEP, NF1),		/* I2C0_SCL (touch panel) */
 	PAD_CFG_NF(GPP_C18, NONE, PLTRST, NF1),		/* I2C1_SDA (EC HID) */
 	PAD_CFG_NF(GPP_C19, NONE, PLTRST, NF1),		/* I2C1_SCL (EC HID) */
-	PAD_CFG_NF(GPP_C20, NONE, PLTRST, NF1),		/* UART2_RXD (console) */
-	PAD_CFG_NF(GPP_C21, NONE, PLTRST, NF1),		/* UART2_TXD (console) */
+	PAD_CFG_NF(GPP_C20, NONE, DEEP, NF1),		/* UART2_RXD (console) */
+	PAD_CFG_NF(GPP_C21, NONE, DEEP, NF1),		/* UART2_TXD (console) */
 	PAD_NC(GPP_C22, NONE),
 	PAD_NC(GPP_C23, NONE),
 

@@ -22,7 +22,7 @@ is what the port is set up for, not what is known to work.
     - Microchip MEC1521 with Chrome EC firmware (`hx20` board)
     - Backlit keyboard, with standard PS/2 keycodes and I2C HID hotkeys
     - Battery
-    - Suspend / resume (S0ix, not S3)
+    - Suspend / resume
 - GPU
     - Intel® Iris® Xe Graphics
     - GOP driver is recommended, VBT is provided
@@ -44,16 +44,16 @@ is what the port is set up for, not what is known to work.
     - Combined headphone / microphone 3.5-mm jack
     - USB-C DisplayPort audio
 - Built-in devices
-  - I2C HID PTP Touchpad
-  - I2C HID Mediakeys from the EC
-  - Optional I2C HID touch panel (Compatible with Laptop 13 Pro panel)
-  - Integrated Sensor Hub (ALS Sensor)
-  - Nuvoton NPCT750 SPI TPM 2.0
-  - Intel RAPL power reporting
-  - USB Camera
-  - USB Fingerprint reader
-  - eSPI PS2 Keyboard
-  - eSPI PS2 emulated mouse/touchpad (if OS has no I2C driver)
+    - I2C HID PTP Touchpad
+    - I2C HID Mediakeys from the EC
+    - Optional I2C HID touch panel (Compatible with Laptop 13 Pro panel)
+    - Integrated Sensor Hub (ALS Sensor)
+    - Nuvoton NPCT750 SPI TPM 2.0
+    - Intel RAPL power reporting
+    - USB Camera
+    - USB Fingerprint reader
+    - eSPI PS2 Keyboard
+    - eSPI PS2 emulated mouse/touchpad (if OS has no I2C driver)
 - Storage
     - M.2 2280 PCIe Gen4 x4 SSD
 - 4 Type-C Ports

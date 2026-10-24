@@ -36,7 +36,6 @@ chip soc/intel/tigerlake
 	register "SaGv" = "SaGv_Enabled"
 	register "enable_c6dram" = "true"
 
-
 	device domain 0 on
 		subsystemid 0xf111 0x0001 inherit
 
