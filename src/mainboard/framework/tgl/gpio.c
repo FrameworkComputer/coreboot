@@ -10,8 +10,12 @@ static const struct pad_config gpio_table[] = {
 	PAD_CFG_NF(GPP_B2, NONE, PLTRST, NF1),		/* VRALERT# */
 	PAD_CFG_GPI_INT(GPP_B3, UP_5K, PLTRST, LEVEL),	/* SOC_TP_INT# (touchpad on I2C3) */
 	PAD_NC(GPP_B4, NONE),
-	PAD_NC(GPP_B5, NONE),
-	PAD_NC(GPP_B6, NONE),
+	/*
+	 * DA217 accelerometer at I2C address 0x27 on ISH_I2C0, read by the
+	 * ISH firmware (it enumerates it as a custom "da2xx" HID sensor).
+	 */
+	PAD_CFG_NF(GPP_B5, NONE, DEEP, NF1),		/* ISH_I2C0_SDA (accelerometer) */
+	PAD_CFG_NF(GPP_B6, NONE, DEEP, NF1),		/* ISH_I2C0_SCL (accelerometer) */
 	PAD_NC(GPP_B7, NONE),
 	PAD_NC(GPP_B8, NONE),
 	PAD_CFG_NF(GPP_B9, NONE, PLTRST, NF2),		/* ISH_I2C2_SDA (sensor hub) */
