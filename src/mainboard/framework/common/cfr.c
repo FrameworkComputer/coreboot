@@ -5,6 +5,10 @@
 #include <drivers/option/cfr_frontend.h>
 #include <mainboard/framework/common/board_host_command.h>
 #include <mainboard/framework/common/ec.h>
+#if CONFIG(SOC_INTEL_COMMON)
+#include <intelblocks/cfr.h>
+#include <soc/cfr.h>
+#endif
 
 static const struct sm_object ps2_emulation = SM_DECLARE_BOOL({
 	.opt_name	= PS2_EMULATION_OPTION_NAME,
@@ -116,8 +120,57 @@ static struct sm_obj_form ec = {
 	},
 };
 
+#if CONFIG(SOC_INTEL_COMMON)
+static const struct sm_object tdp_pl1_override = SM_DECLARE_NUMBER({
+	.opt_name	= "tdp_pl1_override",
+	.ui_name	= "CPU Power Limit 1 (W)",
+	.ui_helptext	= "Long-term CPU package power limit (PL1) in Watts.\n"
+			  "0 uses the processor's default TDP. Values outside the "
+			  "hardware limits are clamped.",
+	.default_value	= 0,
+	.min		= 0,
+	.max		= 120,
+	.step		= 1,
+});
+
+static const struct sm_object tdp_pl2_override = SM_DECLARE_NUMBER({
+	.opt_name	= "tdp_pl2_override",
+	.ui_name	= "CPU Power Limit 2 (W)",
+	.ui_helptext	= "Short-term CPU package power limit (PL2) in Watts.\n"
+			  "0 uses the default of 1.25x TDP. Never set below PL1.",
+	.default_value	= 0,
+	.min		= 0,
+	.max		= 120,
+	.step		= 1,
+});
+
+static struct sm_obj_form chipset = {
+	.ui_name = "Chipset",
+	.obj_list = (const struct sm_object *[]) {
+#if CONFIG(SOC_INTEL_ALDERLAKE) || CONFIG(SOC_INTEL_METEORLAKE)
+		&hyper_threading,
+#endif
+		&vtd,
+		&s0ix_enable,
+		&igd_dvmt,
+		&legacy_8254_timer,
+		&intel_tme,
+		&me_state,
+		&me_state_counter,
+		&power_on_after_fail,
+		&tdp_pl1_override,
+		&tdp_pl2_override,
+		&pkg_power_limit_lock,
+		NULL
+	},
+};
+#endif
+
 static struct sm_obj_form *sm_root[] = {
 	&ec,
+#if CONFIG(SOC_INTEL_COMMON)
+	&chipset,
+#endif
 	NULL
 };
 
