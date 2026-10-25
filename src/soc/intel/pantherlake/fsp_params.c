@@ -11,6 +11,7 @@
 #include <fsp/ppi/mp_service_ppi.h>
 #include <intelblocks/aspm.h>
 #include <intelblocks/cfg.h>
+#include <intelblocks/cse.h>
 #include <intelblocks/irq.h>
 #include <intelblocks/mp_init.h>
 #include <intelblocks/pmclib.h>
@@ -805,6 +806,10 @@ void platform_fsp_silicon_init_params_cb(FSPS_UPD *supd)
 	arch_silicon_init_params(s_arch_cfg);
 	/* Override settings per board if required. */
 	mainboard_update_soc_chip_config(config);
+
+	/* Runtime configuration of S0ix */
+	config->s0ix_enable = cse_get_s0ix_enable_state(config->s0ix_enable);
+
 	soc_silicon_init_params(s_cfg, config);
 	mainboard_silicon_init_params(s_cfg);
 }
