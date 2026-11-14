@@ -22,7 +22,7 @@ chip soc/intel/pantherlake
 	register "s0ix_enable" = "true"
 
 	# Maximum total system power consumption - roughly 100W TypeC + 50W battery
-	register "psys_pmax_watts" = "149"
+	register "psys_pmax_watts" = "150"
 
 	# SAGV + power management
 	register "sagv" = "SAGV_ENABLED"
@@ -31,6 +31,12 @@ chip soc/intel/pantherlake
 	register "pch_slp_s4_min_assertion_width" = "SLP_S4_ASSERTION_3S"
 	register "pch_slp_sus_min_assertion_width" = "SLP_SUS_ASSERTION_1_S"
 	register "pch_slp_a_min_assertion_width" = "SLP_A_ASSERTION_98_MS"
+
+	# IA TDC: iPL2 with Auto window (1 s), like the vendor BIOS and the
+	# reference setup defaults. The SoC default (IRMS, 28 s) has no IRMS
+	# current in any WCL VR profile (IaIrmsLimit = 0).
+	register "tdc_mode[VR_DOMAIN_IA]" = "TDC_IPL2"
+	register "tdc_time_window_ms[VR_DOMAIN_IA]" = "0"
 
 	# Shut down the VCCSA rail down in low-power states
 	register "vccsa_shutdown" = "1"
