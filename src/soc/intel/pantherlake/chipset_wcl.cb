@@ -22,18 +22,25 @@ chip soc/intel/pantherlake
 	register "ps1_threshold" = "{
 		[VR_DOMAIN_IA] = 20 * 4,
 		[VR_DOMAIN_GT] = 20 * 4,
-		[VR_DOMAIN_SA] = 20 * 4
+		[VR_DOMAIN_SA] = 20 * 4,
+		[VR_DOMAIN_ATOM] = 20 * 4
 	}"
 	register "ps2_threshold" = "{
 		[VR_DOMAIN_IA] = 5 * 4,
 		[VR_DOMAIN_GT] = 5 * 4,
-		[VR_DOMAIN_SA] = 5 * 4
+		[VR_DOMAIN_SA] = 5 * 4,
+		[VR_DOMAIN_ATOM] = 5 * 4
 	}"
 	register "ps3_threshold" = "{
 		[VR_DOMAIN_IA] = 1 * 4,
 		[VR_DOMAIN_GT] = 1 * 4,
-		[VR_DOMAIN_SA] = 1 * 4
+		[VR_DOMAIN_SA] = 1 * 4,
+		[VR_DOMAIN_ATOM] = 1 * 4
 	}"
+
+	register "enable_acoustic_noise_mitigation" = "true"
+	register "disable_fast_pkgc_ramp[VR_DOMAIN_GT]" = "true"
+	register "slow_slew_rate_config[VR_DOMAIN_GT]" = "SLEW_FAST_4"
 
 	# Reduce the size of BasicMemoryTests to speed up the boot time.
 	register "lower_basic_mem_test_size" = "true"
